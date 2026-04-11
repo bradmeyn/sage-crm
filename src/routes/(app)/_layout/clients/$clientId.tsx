@@ -6,8 +6,8 @@ import {
   useMatchRoute,
 } from '@tanstack/react-router'
 import { getClient } from '#/server/functions/clients'
+import type { ClientWithPartner } from '#/server/functions/clients'
 import { clientKeys } from '#/features/clients/hooks'
-import type { Client } from '#/db/schema'
 import { Card } from '#/components/ui/card'
 import { Button } from '#/components/ui/button'
 import { Phone, Mail, Copy, Edit } from 'lucide-react'
@@ -25,7 +25,7 @@ export const Route = createFileRoute('/(app)/_layout/clients/$clientId')({
 })
 
 function ClientLayout() {
-  const client = useLoaderData({ from: Route.id }) as Client
+  const client = useLoaderData({ from: Route.id }) as ClientWithPartner
 
   return (
     <div>
