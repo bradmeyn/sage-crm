@@ -99,6 +99,7 @@ export const updateServiceAgreement = createServerFn({ method: 'POST' })
       .set({ ...fields, notes: fields.notes ?? null })
       .where(and(eq(serviceAgreement.id, id), eq(serviceAgreement.organizationId, orgId)))
       .returning()
+    if (!updated) throw new Error('Service agreement not found or unauthorized')
     return { ...updated, status: computeAgreementStatus(updated.nextRenewalDate) }
   })
 
@@ -188,7 +189,7 @@ export const checkServiceAgreementRenewals = createServerFn({ method: 'POST' })
       const daysUntilRenewal = Math.ceil((renewal.getTime() - today.getTime()) / 86400000)
       const daysOverdue = -daysUntilRenewal
 
-      let notifType: string | null = null
+      let notifType: 'AGREEMENT_RENEWAL_DUE' | 'AGREEMENT_OVERDUE' | 'AGREEMENT_LAPSED' | null = null
       let title = ''
       let body = ''
 
