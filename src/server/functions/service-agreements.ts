@@ -192,7 +192,7 @@ export const checkServiceAgreementRenewals = createServerFn({ method: 'POST' })
       let title = ''
       let body = ''
 
-      if (status === 'ACTIVE' && daysUntilRenewal === 60) {
+      if (status === 'RENEWAL_DUE' && daysUntilRenewal === 60) {
         notifType = 'AGREEMENT_RENEWAL_DUE'
         title = 'Service agreement renewal due'
         body = `The renewal window for ${a.client.firstName} ${a.client.lastName}'s service agreement opens today — renewal due by ${new Date(a.nextRenewalDate).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })}.`
