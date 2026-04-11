@@ -8,6 +8,7 @@ import {
   uniqueIndex,
   json,
   check,
+  type AnyPgColumn,
 } from 'drizzle-orm/pg-core'
 import { relations, sql } from 'drizzle-orm'
 
@@ -130,6 +131,8 @@ export const client = pgTable('client', {
   occupation: text('occupation'),
   employer: text('employer'),
   quickNote: text('quick_note'),
+  partnerId: uuid('partner_id').references((): AnyPgColumn => client.id, { onDelete: 'set null' }),
+  partnerRelationship: text('partner_relationship'),
   createdById: text('created_by_id').references(() => user.id),
   updatedById: text('updated_by_id').references(() => user.id),
   createdAt: timestamp('created_at').notNull().defaultNow(),
@@ -601,3 +604,4 @@ export type JobMember = typeof jobMember.$inferSelect
 export type Notification = typeof notification.$inferSelect
 export type ServiceAgreement = typeof serviceAgreement.$inferSelect
 export type NewServiceAgreement = typeof serviceAgreement.$inferInsert
+export type PartnerRelationship = 'SPOUSE' | 'PARTNER' | 'DE_FACTO'

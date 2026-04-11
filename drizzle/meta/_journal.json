@@ -57,6 +57,13 @@
       "when": 1744336800000,
       "tag": "0008_service_agreement_constraints",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1744500000000,
+      "tag": "0009_partner_link",
+      "breakpoints": true
     }
   ]
 }
