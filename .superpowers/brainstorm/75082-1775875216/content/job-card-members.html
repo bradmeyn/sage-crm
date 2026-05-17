@@ -1,0 +1,90 @@
+<style>
+  .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .job-card {
+    background: white; border: 1px solid #e2e8f0; border-radius: 10px;
+    padding: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.07);
+    font-family: system-ui, sans-serif;
+  }
+  .client-name { font-size: 11px; color: #94a3b8; margin-bottom: 4px; }
+  .job-title { font-size: 13px; font-weight: 600; color: #1e293b; margin-bottom: 10px; }
+  .job-meta { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .due { font-size: 11px; color: #94a3b8; }
+  .priority { font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 4px; background: #fef3c7; color: #92400e; }
+  .progress-bar { height: 3px; background: #f1f5f9; border-radius: 2px; overflow: hidden; }
+  .progress-fill { height: 100%; background: #22c55e; border-radius: 2px; }
+  .task-text { font-size: 10px; color: #94a3b8; display: flex; justify-content: space-between; margin-top: 4px; }
+
+  /* Avatar styles */
+  .avatar { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: white; border: 2px solid white; }
+  .avatar-stack { display: flex; }
+  .avatar-stack .avatar { margin-left: -8px; }
+  .avatar-stack .avatar:first-child { margin-left: 0; }
+
+  .av-green  { background: #16a34a; }
+  .av-blue   { background: #2563eb; }
+  .av-purple { background: #7c3aed; }
+  .av-orange { background: #ea580c; }
+
+  /* Option A — bottom row */
+  .card-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; padding-top: 10px; border-top: 1px solid #f1f5f9; }
+
+  /* Option B — top right corner */
+  .card-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 6px; }
+</style>
+
+<h2>Where should member avatars live on the job card?</h2>
+<p class="subtitle">Both show initials circles for assigned team members</p>
+
+<div class="cards">
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="card-image" style="padding:16px;">
+      <div class="job-card">
+        <div class="client-name">Sarah Johnson</div>
+        <div class="job-title">Initial onboarding — 2024</div>
+        <div class="job-meta">
+          <span class="due">12 Jan</span>
+          <span class="priority">MEDIUM</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" style="width:45%"></div></div>
+        <div class="task-text"><span>5/11 tasks</span><span>45%</span></div>
+        <div class="card-footer">
+          <div class="avatar-stack">
+            <div class="avatar av-green">BM</div>
+            <div class="avatar av-blue">JD</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>Bottom row</h3>
+      <p>Avatars in their own row at the bottom — clear separation, always visible, space for more members</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="card-image" style="padding:16px;">
+      <div class="job-card">
+        <div class="card-header">
+          <div class="client-name">Sarah Johnson</div>
+          <div class="avatar-stack">
+            <div class="avatar av-green" style="width:22px;height:22px;font-size:9px;">BM</div>
+            <div class="avatar av-blue" style="width:22px;height:22px;font-size:9px;">JD</div>
+          </div>
+        </div>
+        <div class="job-title">Initial onboarding — 2024</div>
+        <div class="job-meta">
+          <span class="due">12 Jan</span>
+          <span class="priority">MEDIUM</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" style="width:45%"></div></div>
+        <div class="task-text"><span>5/11 tasks</span><span>45%</span></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>Top right corner</h3>
+      <p>Avatars alongside the client name at the top — compact, saves vertical space per card</p>
+    </div>
+  </div>
+</div>
