@@ -288,7 +288,7 @@ function RenewalRow({
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
-export default function DashboardPage() {
+function DashboardPage() {
   const { data: stats } = useSuspenseQuery({
     queryKey: dashboardKeys.stats(),
     queryFn: () => getDashboardStats(),

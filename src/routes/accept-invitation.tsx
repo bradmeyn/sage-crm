@@ -30,7 +30,7 @@ function roleBadgeClass(role: string) {
   }
 }
 
-export default function AcceptInvitationPage() {
+function AcceptInvitationPage() {
   const { id } = Route.useSearch()
   const loaderData = Route.useLoaderData()
   const navigate = useNavigate()

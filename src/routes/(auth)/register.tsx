@@ -63,7 +63,7 @@ function RegisterPage() {
     <div className="min-h-screen">
       <header className="py-6 px-8 border-b bg-background">
         <Link to="/" className="text-xl font-bold">
-          CRM
+          Sage
         </Link>
       </header>
 

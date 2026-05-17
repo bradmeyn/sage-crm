@@ -34,13 +34,13 @@ const links = [
   { to: '/settings', label: 'Settings', icon: Settings },
 ] as const
 
-export default function ProtectedLayout() {
+function ProtectedLayout() {
   const { session } = Route.useRouteContext()
   const navigate = useNavigate()
   const orgName = (session as { session?: { activeOrganizationId?: string } })?.session
     ?.activeOrganizationId
-    ? 'CRM'
-    : 'CRM'
+    ? 'Sage'
+    : 'Sage'
 
   const handleLogout = async () => {
     await authClient.signOut()

@@ -18,7 +18,7 @@ function Header() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center font-semibold">
-            <Link to="/">CRM</Link>
+            <Link to="/">Sage</Link>
           </div>
           <div className="flex items-center gap-4">
             <Button variant="outline" asChild>
@@ -34,7 +34,7 @@ function Header() {
   )
 }
 
-export default function LandingPage() {
+function LandingPage() {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Header />

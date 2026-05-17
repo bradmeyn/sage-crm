@@ -18,7 +18,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
     meta: [
       { charSet: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { title: 'CRM' },
+      { title: 'Sage' },
     ],
     links: [{ rel: 'stylesheet', href: appCss }],
   }),
@@ -26,13 +26,14 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 })
 
 function RootDocument({ children }: { children: React.ReactNode }) {
+  const { queryClient } = Route.useRouteContext()
   return (
     <html lang="en">
       <head>
         <HeadContent />
       </head>
       <body>
-        <TanStackQueryProvider>
+        <TanStackQueryProvider queryClient={queryClient}>
           {children}
           <Toaster position="top-right" />
         </TanStackQueryProvider>

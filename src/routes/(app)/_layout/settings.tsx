@@ -98,7 +98,7 @@ function getInitials(name: string) {
     .slice(0, 2)
 }
 
-export default function SettingsPage() {
+function SettingsPage() {
   const { session } = Route.useRouteContext()
   const currentUserId = session.user.id
   const queryClient = useQueryClient()

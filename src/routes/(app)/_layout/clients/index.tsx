@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { z } from 'zod'
 import { DataTable } from '#/components/data-table'
 import AddClientDialog from '#/features/clients/components/add-client-dialog'
 import { clientColumns } from '#/features/clients/components/client-columns'
@@ -11,18 +12,20 @@ const VALID_SORT = ['firstName', 'lastName', 'email'] as const
 type SortCol = (typeof VALID_SORT)[number]
 type SortDir = 'asc' | 'desc'
 
+const searchSchema = z.object({
+  sort: z.enum(VALID_SORT).catch('lastName'),
+  order: z.enum(['asc', 'desc']).catch('asc'),
+})
+
 export const Route = createFileRoute('/(app)/_layout/clients/')({
   component: ClientListPage,
-  validateSearch: (s: Record<string, unknown>) => ({
-    sort: VALID_SORT.includes(s.sort as SortCol) ? (s.sort as SortCol) : ('lastName' as SortCol),
-    order: s.order === 'desc' ? ('desc' as SortDir) : ('asc' as SortDir),
-  }),
+  validateSearch: searchSchema,
   errorComponent: () => <div>Error loading clients</div>,
-  loader: async ({ context: { queryClient }, location: { search } }) => {
-    const s = search as { sort?: SortCol; order?: SortDir }
+  loaderDeps: ({ search: { sort, order } }) => ({ sort, order }),
+  loader: async ({ context: { queryClient }, deps: { sort, order } }) => {
     await queryClient.ensureQueryData({
-      queryKey: clientKeys.list(s.sort, s.order),
-      queryFn: () => getClients({ data: { sort: s.sort, order: s.order } }),
+      queryKey: clientKeys.list(sort, order),
+      queryFn: () => getClients({ data: { sort, order } }),
     })
   },
 })
