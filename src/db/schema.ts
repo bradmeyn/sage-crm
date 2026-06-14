@@ -131,6 +131,12 @@ export const client = pgTable('client', {
   occupation: text('occupation'),
   employer: text('employer'),
   quickNote: text('quick_note'),
+  // Health (Fact Find — feeds insurance / underwriting)
+  smoker: boolean('smoker'),
+  // EXCELLENT | GOOD | FAIR | POOR
+  healthStatus: text('health_status'),
+  heightCm: integer('height_cm'),
+  weightKg: integer('weight_kg'),
   partnerId: uuid('partner_id').references((): AnyPgColumn => client.id, { onDelete: 'set null' }),
   partnerRelationship: text('partner_relationship'),
   createdById: text('created_by_id').references(() => user.id),
@@ -307,6 +313,189 @@ export const clientInsurance = pgTable('client_insurance', {
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
 })
 
+// ─── Fact Find: Dependants & Estate ─────────────────────────────────────────
+
+export const clientDependant = pgTable('client_dependant', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  clientId: uuid('client_id')
+    .notNull()
+    .references(() => client.id, { onDelete: 'cascade' }),
+  name: text('name').notNull(),
+  // YYYY-MM-DD stored as text
+  dateOfBirth: text('date_of_birth'),
+  // CHILD | STEPCHILD | PARENT | SIBLING | OTHER
+  relationship: text('relationship').notNull().default('CHILD'),
+  financiallyDependent: boolean('financially_dependent')
+    .notNull()
+    .default(true),
+  notes: text('notes'),
+  createdById: text('created_by_id').references(() => user.id),
+  updatedById: text('updated_by_id').references(() => user.id),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+})
+
+// One estate-planning record per client.
+export const clientEstate = pgTable('client_estate', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  clientId: uuid('client_id')
+    .notNull()
+    .unique()
+    .references(() => client.id, { onDelete: 'cascade' }),
+  hasWill: boolean('has_will').notNull().default(false),
+  willLocation: text('will_location'),
+  // YYYY-MM-DD stored as text
+  willUpdatedDate: text('will_updated_date'),
+  executor: text('executor'),
+  hasPoa: boolean('has_poa').notNull().default(false),
+  // FINANCIAL | MEDICAL | BOTH
+  poaType: text('poa_type'),
+  poaAttorney: text('poa_attorney'),
+  hasGuardianship: boolean('has_guardianship').notNull().default(false),
+  notes: text('notes'),
+  createdById: text('created_by_id').references(() => user.id),
+  updatedById: text('updated_by_id').references(() => user.id),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+})
+
+export const clientBeneficiary = pgTable('client_beneficiary', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  clientId: uuid('client_id')
+    .notNull()
+    .references(() => client.id, { onDelete: 'cascade' }),
+  name: text('name').notNull(),
+  // SPOUSE | CHILD | FAMILY | CHARITY | ESTATE | OTHER
+  relationship: text('relationship').notNull().default('OTHER'),
+  // Percentage allocation (0-100)
+  allocation: integer('allocation'),
+  // WILL | SUPER | INSURANCE
+  appliesTo: text('applies_to').notNull().default('WILL'),
+  notes: text('notes'),
+  createdById: text('created_by_id').references(() => user.id),
+  updatedById: text('updated_by_id').references(() => user.id),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+})
+
+// Risk tolerance profile — one per client. Answers are weighted; category is
+// computed from them, and the adviser can confirm/override the final category.
+export const clientRiskProfile = pgTable('client_risk_profile', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  clientId: uuid('client_id')
+    .notNull()
+    .unique()
+    .references(() => client.id, { onDelete: 'cascade' }),
+  // { [questionId]: optionWeight }
+  answers: json('answers').$type<Record<string, number>>().notNull().default({}),
+  // CONSERVATIVE | MODERATELY_CONSERVATIVE | BALANCED | GROWTH | HIGH_GROWTH
+  category: text('category'),
+  // Adviser-confirmed final category (may differ from computed).
+  confirmedCategory: text('confirmed_category'),
+  notes: text('notes'),
+  createdById: text('created_by_id').references(() => user.id),
+  updatedById: text('updated_by_id').references(() => user.id),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+})
+
+// Client-facing fact-find request: a tokenised link emailed to a client.
+// Client answers are staged in responseData (JSON) and imported selectively.
+export const factFindRequest = pgTable('fact_find_request', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  organizationId: text('organization_id')
+    .notNull()
+    .references(() => organization.id, { onDelete: 'cascade' }),
+  clientId: uuid('client_id')
+    .notNull()
+    .references(() => client.id, { onDelete: 'cascade' }),
+  // sha256 of the raw token; the raw token only ever lives in the email link.
+  tokenHash: text('token_hash').notNull().unique(),
+  requestedSections: json('requested_sections')
+    .$type<string[]>()
+    .notNull()
+    .default([]),
+  responseData: json('response_data')
+    .$type<Record<string, unknown>>()
+    .notNull()
+    .default({}),
+  // PENDING | SUBMITTED | IMPORTED | EXPIRED | REVOKED
+  status: text('status').notNull().default('PENDING'),
+  // Failed DOB verifications on the public portal; locks the link past a limit.
+  dobAttempts: integer('dob_attempts').notNull().default(0),
+  expiresAt: timestamp('expires_at').notNull(),
+  sentAt: timestamp('sent_at'),
+  submittedAt: timestamp('submitted_at'),
+  createdById: text('created_by_id').references(() => user.id),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+})
+
+// ─── Statements of Advice ────────────────────────────────────────────────────
+
+// Reusable advice strategy (org-level; system-seeded + locked, or custom).
+export const strategyTemplate = pgTable('strategy_template', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  organizationId: text('organization_id')
+    .notNull()
+    .references(() => organization.id, { onDelete: 'cascade' }),
+  name: text('name').notNull(),
+  // SUPERANNUATION | CONTRIBUTIONS | INSURANCE | INVESTMENT | RETIREMENT | CASHFLOW | DEBT | ESTATE | OTHER
+  category: text('category').notNull().default('OTHER'),
+  // GENERIC | INSURANCE | SUPER_CONTRIBUTION | INVESTMENT_SWITCH
+  type: text('type').notNull().default('GENERIC'),
+  wording: text('wording'),
+  benefits: json('benefits').$type<string[]>().notNull().default([]),
+  warnings: json('warnings').$type<string[]>().notNull().default([]),
+  isSystem: boolean('is_system').notNull().default(false),
+  sortOrder: integer('sort_order').notNull().default(0),
+  createdById: text('created_by_id').references(() => user.id),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+})
+
+export const soa = pgTable('soa', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  organizationId: text('organization_id')
+    .notNull()
+    .references(() => organization.id, { onDelete: 'cascade' }),
+  clientId: uuid('client_id')
+    .notNull()
+    .references(() => client.id, { onDelete: 'cascade' }),
+  title: text('title').notNull().default('Statement of Advice'),
+  // DRAFT | ISSUED
+  status: text('status').notNull().default('DRAFT'),
+  scope: text('scope'),
+  intro: text('intro'),
+  createdById: text('created_by_id').references(() => user.id),
+  updatedById: text('updated_by_id').references(() => user.id),
+  issuedAt: timestamp('issued_at'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+})
+
+export const soaRecommendation = pgTable('soa_recommendation', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  soaId: uuid('soa_id')
+    .notNull()
+    .references(() => soa.id, { onDelete: 'cascade' }),
+  templateId: uuid('template_id').references(() => strategyTemplate.id, {
+    onDelete: 'set null',
+  }),
+  category: text('category').notNull().default('OTHER'),
+  type: text('type').notNull().default('GENERIC'),
+  title: text('title').notNull(),
+  wording: text('wording'),
+  benefits: json('benefits').$type<string[]>().notNull().default([]),
+  warnings: json('warnings').$type<string[]>().notNull().default([]),
+  // Type-specific structured fields (cover amounts, contributions, switches…)
+  data: json('data').$type<Record<string, any>>().notNull().default({}),
+  goalIds: json('goal_ids').$type<string[]>().notNull().default([]),
+  sortOrder: integer('sort_order').notNull().default(0),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+})
+
 // ─── Jobs ─────────────────────────────────────────────────────────────────────
 
 export const jobTemplate = pgTable(
@@ -479,16 +668,64 @@ export const clientDocumentRelations = relations(clientDocument, ({ one }) => ({
   }),
 }))
 
-export const clientRelations = relations(client, ({ many }) => ({
+export const clientRelations = relations(client, ({ many, one }) => ({
   assets: many(clientAsset),
   liabilities: many(clientLiability),
   income: many(clientIncome),
   expenses: many(clientExpense),
   goals: many(clientGoal),
   insurance: many(clientInsurance),
+  dependants: many(clientDependant),
+  beneficiaries: many(clientBeneficiary),
+  estate: one(clientEstate),
+  riskProfile: one(clientRiskProfile),
+  factFindRequests: many(factFindRequest),
+  soas: many(soa),
   jobClients: many(jobClient),
   agreements: many(serviceAgreement),
 }))
+
+export const soaRelations = relations(soa, ({ one, many }) => ({
+  client: one(client, { fields: [soa.clientId], references: [client.id] }),
+  recommendations: many(soaRecommendation),
+}))
+
+export const soaRecommendationRelations = relations(
+  soaRecommendation,
+  ({ one }) => ({
+    soa: one(soa, {
+      fields: [soaRecommendation.soaId],
+      references: [soa.id],
+    }),
+  }),
+)
+
+export const factFindRequestRelations = relations(
+  factFindRequest,
+  ({ one }) => ({
+    client: one(client, {
+      fields: [factFindRequest.clientId],
+      references: [client.id],
+    }),
+  }),
+)
+
+export const clientEstateRelations = relations(clientEstate, ({ one }) => ({
+  client: one(client, {
+    fields: [clientEstate.clientId],
+    references: [client.id],
+  }),
+}))
+
+export const clientRiskProfileRelations = relations(
+  clientRiskProfile,
+  ({ one }) => ({
+    client: one(client, {
+      fields: [clientRiskProfile.clientId],
+      references: [client.id],
+    }),
+  }),
+)
 
 export const jobTemplateRelations = relations(jobTemplate, ({ many }) => ({
   jobs: many(job),
@@ -563,6 +800,14 @@ export const clientGoalRelations = relations(clientGoal, ({ one }) => ({
 
 export const clientInsuranceRelations = relations(clientInsurance, ({ one }) => ({
   client: one(client, { fields: [clientInsurance.clientId], references: [client.id] }),
+}))
+
+export const clientDependantRelations = relations(clientDependant, ({ one }) => ({
+  client: one(client, { fields: [clientDependant.clientId], references: [client.id] }),
+}))
+
+export const clientBeneficiaryRelations = relations(clientBeneficiary, ({ one }) => ({
+  client: one(client, { fields: [clientBeneficiary.clientId], references: [client.id] }),
 }))
 
 export const serviceAgreementRelations = relations(serviceAgreement, ({ one }) => ({

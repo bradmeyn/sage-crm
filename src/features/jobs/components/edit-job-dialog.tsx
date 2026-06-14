@@ -1,6 +1,6 @@
-import { useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Dialog,
   DialogContent,
@@ -8,17 +8,17 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '#/components/ui/dialog'
-import { Button } from '#/components/ui/button'
-import { Input } from '#/components/ui/input'
-import { Textarea } from '#/components/ui/textarea'
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '#/components/ui/select'
+} from "@/components/ui/select";
 import {
   Form,
   FormControl,
@@ -26,21 +26,26 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '#/components/ui/form'
-import { Edit } from 'lucide-react'
-import { toast } from 'sonner'
-import { jobFormSchema, type JobFormValues, JOB_PRIORITIES, JOB_STATUSES } from '../schemas'
-import { useUpdateJob } from '../hooks'
-import type { Job } from '#/db/schema'
+} from "@/components/ui/form";
+import { Edit } from "lucide-react";
+import { toast } from "sonner";
+import {
+  jobFormSchema,
+  type JobFormValues,
+  JOB_PRIORITIES,
+  JOB_STATUSES,
+} from "../schemas";
+import { useUpdateJob } from "../hooks";
+import type { Job } from "@/db/schema";
 
 interface EditJobDialogProps {
-  job: Job
-  trigger?: React.ReactNode
+  job: Job;
+  trigger?: React.ReactNode;
 }
 
 export default function EditJobDialog({ job, trigger }: EditJobDialogProps) {
-  const [open, setOpen] = useState(false)
-  const updateJob = useUpdateJob()
+  const [open, setOpen] = useState(false);
+  const updateJob = useUpdateJob();
 
   const form = useForm<JobFormValues>({
     resolver: zodResolver(jobFormSchema),
@@ -49,10 +54,10 @@ export default function EditJobDialog({ job, trigger }: EditJobDialogProps) {
       jobType: job.jobType,
       priority: job.priority,
       status: job.status,
-      description: job.description ?? '',
-      dueDate: job.dueDate ?? '',
+      description: job.description ?? "",
+      dueDate: job.dueDate ?? "",
     },
-  })
+  });
 
   const onSubmit = (data: JobFormValues) => {
     updateJob.mutate(
@@ -66,28 +71,33 @@ export default function EditJobDialog({ job, trigger }: EditJobDialogProps) {
       },
       {
         onSuccess: () => {
-          toast.success('Job updated')
-          handleClose()
+          toast.success("Job updated");
+          handleClose();
         },
         onError: (err: Error) => toast.error(`Error: ${err.message}`),
       },
-    )
-  }
+    );
+  };
 
   const handleClose = () => {
-    setOpen(false)
+    setOpen(false);
     form.reset({
       title: job.title,
       jobType: job.jobType,
       priority: job.priority,
       status: job.status,
-      description: job.description ?? '',
-      dueDate: job.dueDate ?? '',
-    })
-  }
+      description: job.description ?? "",
+      dueDate: job.dueDate ?? "",
+    });
+  };
 
   return (
-    <Dialog open={open} onOpenChange={(v) => { if (!v) handleClose(); else setOpen(true) }}>
+    <Dialog
+      open={open}
+      onOpenChange={(v) => {
+        if (!v) handleClose();
+        else setOpen(true);
+      }}>
       <DialogTrigger asChild>
         {trigger ?? (
           <Button variant="outline" size="sm">
@@ -132,7 +142,9 @@ export default function EditJobDialog({ job, trigger }: EditJobDialogProps) {
                       </FormControl>
                       <SelectContent>
                         {JOB_PRIORITIES.map((p) => (
-                          <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>
+                          <SelectItem key={p.value} value={p.value}>
+                            {p.label}
+                          </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -155,7 +167,9 @@ export default function EditJobDialog({ job, trigger }: EditJobDialogProps) {
                       </FormControl>
                       <SelectContent>
                         {JOB_STATUSES.map((s) => (
-                          <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
+                          <SelectItem key={s.value} value={s.value}>
+                            {s.label}
+                          </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -172,7 +186,7 @@ export default function EditJobDialog({ job, trigger }: EditJobDialogProps) {
                 <FormItem>
                   <FormLabel>Due Date</FormLabel>
                   <FormControl>
-                    <Input type="date" {...field} value={field.value ?? ''} />
+                    <Input type="date" {...field} value={field.value ?? ""} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -186,7 +200,12 @@ export default function EditJobDialog({ job, trigger }: EditJobDialogProps) {
                 <FormItem>
                   <FormLabel>Description</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Optional description..." rows={3} {...field} value={field.value ?? ''} />
+                    <Textarea
+                      placeholder="Optional description..."
+                      rows={3}
+                      {...field}
+                      value={field.value ?? ""}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -194,14 +213,16 @@ export default function EditJobDialog({ job, trigger }: EditJobDialogProps) {
             />
 
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={handleClose}>Cancel</Button>
+              <Button type="button" variant="outline" onClick={handleClose}>
+                Cancel
+              </Button>
               <Button type="submit" disabled={updateJob.isPending}>
-                {updateJob.isPending ? 'Saving...' : 'Save Changes'}
+                {updateJob.isPending ? "Saving..." : "Save Changes"}
               </Button>
             </DialogFooter>
           </form>
         </Form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

@@ -1,14 +1,14 @@
-import { betterAuth } from 'better-auth'
-import { drizzleAdapter } from 'better-auth/adapters/drizzle'
-import { organization } from 'better-auth/plugins'
-import { tanstackStartCookies } from 'better-auth/tanstack-start'
-import { db } from '#/db/index'
-import * as schema from '#/db/schema'
-import { sendInviteEmail } from '#/lib/email'
+import { betterAuth } from "better-auth";
+import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { organization } from "better-auth/plugins";
+import { tanstackStartCookies } from "better-auth/tanstack-start";
+import { db } from "@/db/index";
+import * as schema from "@/db/schema";
+import { sendInviteEmail } from "@/lib/email";
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
-    provider: 'pg',
+    provider: "pg",
     schema: {
       user: schema.user,
       session: schema.session,
@@ -34,27 +34,27 @@ export const auth = betterAuth({
           email: data.email,
           invitationId: data.invitation.id,
           baseUrl: process.env.BETTER_AUTH_URL!,
-        })
+        });
       },
     }),
   ],
   user: {
     additionalFields: {
       firstName: {
-        type: 'string',
+        type: "string",
         required: false,
-        fieldName: 'firstName',
+        fieldName: "firstName",
       },
       lastName: {
-        type: 'string',
+        type: "string",
         required: false,
-        fieldName: 'lastName',
+        fieldName: "lastName",
       },
       phone: {
-        type: 'string',
+        type: "string",
         required: false,
-        fieldName: 'phone',
+        fieldName: "phone",
       },
     },
   },
-})
+});

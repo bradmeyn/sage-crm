@@ -1,42 +1,42 @@
-import { useState } from 'react'
+import { useState } from "react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from '#/components/ui/dialog'
-import { Button } from '#/components/ui/button'
-import { Input } from '#/components/ui/input'
-import { Label } from '#/components/ui/label'
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '#/components/ui/select'
-import { Textarea } from '#/components/ui/textarea'
-import { toast } from 'sonner'
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { toast } from "sonner";
 import {
   useCreateServiceAgreement,
   useUpdateServiceAgreement,
-} from '#/features/service-agreements/hooks'
-import type { ServiceAgreement } from '#/db/schema'
+} from "@/features/service-agreements/hooks";
+import type { ServiceAgreement } from "@/db/schema";
 
 interface Props {
-  clientId: string
-  agreement?: ServiceAgreement
-  open: boolean
-  onOpenChange: (open: boolean) => void
+  clientId: string;
+  agreement?: ServiceAgreement;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
 function centsToDisplay(cents: number): string {
-  return (cents / 100).toFixed(2)
+  return (cents / 100).toFixed(2);
 }
 
 function displayToCents(val: string): number {
-  return Math.round(parseFloat(val) * 100)
+  return Math.round(parseFloat(val) * 100);
 }
 
 export default function ServiceAgreementDialog({
@@ -45,38 +45,41 @@ export default function ServiceAgreementDialog({
   open,
   onOpenChange,
 }: Props) {
-  const isEdit = !!agreement
-  const create = useCreateServiceAgreement(clientId)
-  const update = useUpdateServiceAgreement(clientId)
+  const isEdit = !!agreement;
+  const create = useCreateServiceAgreement(clientId);
+  const update = useUpdateServiceAgreement(clientId);
 
-  const today = new Date().toISOString().split('T')[0]
+  const today = new Date().toISOString().split("T")[0];
   const oneYearFromNow = (() => {
-    const d = new Date()
-    d.setFullYear(d.getFullYear() + 1)
-    return d.toISOString().split('T')[0]
-  })()
+    const d = new Date();
+    d.setFullYear(d.getFullYear() + 1);
+    return d.toISOString().split("T")[0];
+  })();
 
-  const [startDate, setStartDate] = useState(agreement?.startDate ?? today)
+  const [startDate, setStartDate] = useState(agreement?.startDate ?? today);
   const [nextRenewalDate, setNextRenewalDate] = useState(
     agreement?.nextRenewalDate ?? oneYearFromNow,
-  )
+  );
   const [feeAmount, setFeeAmount] = useState(
-    agreement ? centsToDisplay(agreement.feeAmount) : '',
-  )
-  const [feeFrequency, setFeeFrequency] = useState<'MONTHLY' | 'QUARTERLY' | 'ANNUALLY'>(
-    (agreement?.feeFrequency as 'MONTHLY' | 'QUARTERLY' | 'ANNUALLY') ?? 'ANNUALLY',
-  )
-  const [services, setServices] = useState(agreement?.services ?? '')
-  const [notes, setNotes] = useState(agreement?.notes ?? '')
+    agreement ? centsToDisplay(agreement.feeAmount) : "",
+  );
+  const [feeFrequency, setFeeFrequency] = useState<
+    "MONTHLY" | "QUARTERLY" | "ANNUALLY"
+  >(
+    (agreement?.feeFrequency as "MONTHLY" | "QUARTERLY" | "ANNUALLY") ??
+      "ANNUALLY",
+  );
+  const [services, setServices] = useState(agreement?.services ?? "");
+  const [notes, setNotes] = useState(agreement?.notes ?? "");
 
-  const isPending = create.isPending || update.isPending
+  const isPending = create.isPending || update.isPending;
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    const cents = displayToCents(feeAmount)
+    e.preventDefault();
+    const cents = displayToCents(feeAmount);
     if (isNaN(cents) || cents <= 0) {
-      toast.error('Enter a valid fee amount')
-      return
+      toast.error("Enter a valid fee amount");
+      return;
     }
     const payload = {
       startDate,
@@ -85,39 +88,39 @@ export default function ServiceAgreementDialog({
       feeFrequency,
       services,
       notes: notes || undefined,
-    }
+    };
 
     if (isEdit) {
       update.mutate(
         { id: agreement.id, ...payload },
         {
           onSuccess: () => {
-            toast.success('Agreement updated')
-            onOpenChange(false)
+            toast.success("Agreement updated");
+            onOpenChange(false);
           },
           onError: (err: Error) => toast.error(err.message),
         },
-      )
+      );
     } else {
       create.mutate(
         { clientId, ...payload },
         {
           onSuccess: () => {
-            toast.success('Agreement created')
-            onOpenChange(false)
+            toast.success("Agreement created");
+            onOpenChange(false);
           },
           onError: (err: Error) => toast.error(err.message),
         },
-      )
+      );
     }
-  }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle>
-            {isEdit ? 'Edit Service Agreement' : 'New Service Agreement'}
+            {isEdit ? "Edit Service Agreement" : "New Service Agreement"}
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -162,8 +165,9 @@ export default function ServiceAgreementDialog({
               <Label>Fee Frequency</Label>
               <Select
                 value={feeFrequency}
-                onValueChange={(v) => setFeeFrequency(v as typeof feeFrequency)}
-              >
+                onValueChange={(v) =>
+                  setFeeFrequency(v as typeof feeFrequency)
+                }>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -200,15 +204,22 @@ export default function ServiceAgreementDialog({
           </div>
 
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
             <Button type="submit" disabled={isPending}>
-              {isPending ? 'Saving…' : isEdit ? 'Save Changes' : 'Create Agreement'}
+              {isPending
+                ? "Saving…"
+                : isEdit
+                  ? "Save Changes"
+                  : "Create Agreement"}
             </Button>
           </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

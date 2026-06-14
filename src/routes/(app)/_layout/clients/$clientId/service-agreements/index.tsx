@@ -1,29 +1,32 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { useState } from 'react'
-import { FileText, Plus } from 'lucide-react'
-import { getServiceAgreement } from '#/server/functions/service-agreements'
-import { agreementKeys, useServiceAgreement } from '#/features/service-agreements/hooks'
-import ServiceAgreementCard from '#/features/service-agreements/components/service-agreement-card'
-import ServiceAgreementDialog from '#/features/service-agreements/components/service-agreement-dialog'
-import { Button } from '#/components/ui/button'
+import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
+import { FileText, Plus } from "lucide-react";
+import { getServiceAgreement } from "@/server/functions/service-agreements";
+import {
+  agreementKeys,
+  useServiceAgreement,
+} from "@/features/service-agreements/hooks";
+import ServiceAgreementCard from "@/features/service-agreements/components/service-agreement-card";
+import ServiceAgreementDialog from "@/features/service-agreements/components/service-agreement-dialog";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute(
-  '/(app)/_layout/clients/$clientId/service-agreements/',
+  "/(app)/_layout/clients/$clientId/service-agreements/",
 )({
   component: ServiceAgreementsPage,
   loader: async ({ params: { clientId }, context: { queryClient } }) => {
     await queryClient.ensureQueryData({
       queryKey: agreementKeys.byClient(clientId),
       queryFn: () => getServiceAgreement({ data: { clientId } }),
-    })
-    return { clientId }
+    });
+    return { clientId };
   },
-})
+});
 
 function ServiceAgreementsPage() {
-  const { clientId } = Route.useLoaderData()
-  const { data: agreement } = useServiceAgreement(clientId)
-  const [createOpen, setCreateOpen] = useState(false)
+  const { clientId } = Route.useLoaderData();
+  const { data: agreement } = useServiceAgreement(clientId);
+  const [createOpen, setCreateOpen] = useState(false);
 
   return (
     <div className="space-y-4">
@@ -49,7 +52,8 @@ function ServiceAgreementsPage() {
           <FileText className="h-10 w-10 text-muted-foreground mb-3" />
           <h3 className="font-medium mb-1">No service agreement on file</h3>
           <p className="text-sm text-muted-foreground mb-4">
-            Record the client's ongoing service arrangement and track annual renewals.
+            Record the client's ongoing service arrangement and track annual
+            renewals.
           </p>
           <Button onClick={() => setCreateOpen(true)}>
             <Plus className="h-4 w-4 mr-2" />
@@ -64,5 +68,5 @@ function ServiceAgreementsPage() {
         onOpenChange={setCreateOpen}
       />
     </div>
-  )
+  );
 }

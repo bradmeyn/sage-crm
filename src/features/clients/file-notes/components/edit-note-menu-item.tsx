@@ -1,6 +1,6 @@
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
-import { useEffect, useState } from 'react'
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -8,17 +8,17 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '#/components/ui/dialog'
-import { Button } from '#/components/ui/button'
-import { Input } from '#/components/ui/input'
-import { Textarea } from '#/components/ui/textarea'
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '#/components/ui/select'
+} from "@/components/ui/select";
 import {
   Form,
   FormControl,
@@ -27,21 +27,25 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '#/components/ui/form'
-import { DropdownMenuItem } from '#/components/ui/dropdown-menu'
-import { useUpdateFileNote } from '#/features/clients/file-notes/hooks'
-import { noteSchema, type NewNote, NOTE_TYPES } from '#/features/clients/file-notes/schemas'
-import type { FileNote } from '#/db/schema'
-import { toast } from 'sonner'
+} from "@/components/ui/form";
+import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { useUpdateFileNote } from "@/features/clients/file-notes/hooks";
+import {
+  noteSchema,
+  type NewNote,
+  NOTE_TYPES,
+} from "@/features/clients/file-notes/schemas";
+import type { FileNote } from "@/db/schema";
+import { toast } from "sonner";
 
 interface EditNoteMenuItemProps {
-  note: FileNote
+  note: FileNote;
 }
 
 export default function EditNoteMenuItem({ note }: EditNoteMenuItemProps) {
-  const [open, setOpen] = useState(false)
-  const [files, setFiles] = useState<File[]>([])
-  const updateFileNoteMutation = useUpdateFileNote()
+  const [open, setOpen] = useState(false);
+  const [files, setFiles] = useState<File[]>([]);
+  const updateFileNoteMutation = useUpdateFileNote();
 
   const form = useForm<NewNote>({
     resolver: zodResolver(noteSchema),
@@ -51,18 +55,18 @@ export default function EditNoteMenuItem({ note }: EditNoteMenuItemProps) {
       noteType: note.noteType,
       isPrivate: note.isPrivate,
     },
-  })
+  });
 
   useEffect(() => {
-    if (!open) return
+    if (!open) return;
     form.reset({
       title: note.title,
       body: note.body,
       noteType: note.noteType,
       isPrivate: note.isPrivate,
-    })
-    setFiles([])
-  }, [form, note, open])
+    });
+    setFiles([]);
+  }, [form, note, open]);
 
   const onSubmit = (data: NewNote) => {
     updateFileNoteMutation.mutate(
@@ -74,25 +78,24 @@ export default function EditNoteMenuItem({ note }: EditNoteMenuItemProps) {
       },
       {
         onSuccess: () => {
-          toast.success('File note updated successfully')
-          setOpen(false)
-          setFiles([])
+          toast.success("File note updated successfully");
+          setOpen(false);
+          setFiles([]);
         },
         onError: (error: Error) => {
-          toast.error(`Error updating file note: ${error.message}`)
+          toast.error(`Error updating file note: ${error.message}`);
         },
       },
-    )
-  }
+    );
+  };
 
   return (
     <>
       <DropdownMenuItem
         onSelect={(event) => {
-          event.preventDefault()
-          setOpen(true)
-        }}
-      >
+          event.preventDefault();
+          setOpen(true);
+        }}>
         Edit
       </DropdownMenuItem>
 
@@ -100,7 +103,9 @@ export default function EditNoteMenuItem({ note }: EditNoteMenuItemProps) {
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle>Edit Note</DialogTitle>
-            <DialogDescription>Update note details and attach PDFs.</DialogDescription>
+            <DialogDescription>
+              Update note details and attach PDFs.
+            </DialogDescription>
           </DialogHeader>
 
           <Form {...form}>
@@ -169,9 +174,10 @@ export default function EditNoteMenuItem({ note }: EditNoteMenuItemProps) {
                   <FormItem>
                     <FormLabel>Visibility</FormLabel>
                     <Select
-                      onValueChange={(value) => field.onChange(value === 'private')}
-                      value={field.value ? 'private' : 'shared'}
-                    >
+                      onValueChange={(value) =>
+                        field.onChange(value === "private")
+                      }
+                      value={field.value ? "private" : "shared"}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select visibility..." />
@@ -196,21 +202,30 @@ export default function EditNoteMenuItem({ note }: EditNoteMenuItemProps) {
                     onChange={(event) => {
                       const selectedFiles = event.target.files
                         ? Array.from(event.target.files)
-                        : []
-                      setFiles(selectedFiles)
+                        : [];
+                      setFiles(selectedFiles);
                     }}
                   />
                 </FormControl>
-                <FormDescription>Uploaded files will be linked to this file note.</FormDescription>
+                <FormDescription>
+                  Uploaded files will be linked to this file note.
+                </FormDescription>
                 <FormMessage />
               </FormItem>
 
               <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setOpen(false)}>
                   Cancel
                 </Button>
-                <Button type="submit" disabled={updateFileNoteMutation.isPending}>
-                  {updateFileNoteMutation.isPending ? 'Saving...' : 'Save Changes'}
+                <Button
+                  type="submit"
+                  disabled={updateFileNoteMutation.isPending}>
+                  {updateFileNoteMutation.isPending
+                    ? "Saving..."
+                    : "Save Changes"}
                 </Button>
               </DialogFooter>
             </form>
@@ -218,5 +233,5 @@ export default function EditNoteMenuItem({ note }: EditNoteMenuItemProps) {
         </DialogContent>
       </Dialog>
     </>
-  )
+  );
 }

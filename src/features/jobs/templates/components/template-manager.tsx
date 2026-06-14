@@ -1,20 +1,20 @@
-import { useState } from 'react'
-import { useForm, useFieldArray } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
-import { Plus, X, Copy, Pencil, Trash2 } from 'lucide-react'
-import { toast } from 'sonner'
-import { Button } from '#/components/ui/button'
-import { Badge } from '#/components/ui/badge'
-import { Input } from '#/components/ui/input'
-import { Textarea } from '#/components/ui/textarea'
+import { useState } from "react";
+import { useForm, useFieldArray } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Plus, X, Copy, Pencil, Trash2 } from "lucide-react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '#/components/ui/dialog'
+} from "@/components/ui/dialog";
 import {
   Form,
   FormControl,
@@ -22,44 +22,58 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '#/components/ui/form'
+} from "@/components/ui/form";
 import {
   useTemplates,
   useCreateTemplate,
   useCloneTemplate,
   useUpdateTemplate,
   useDeleteTemplate,
-} from '../hooks'
-import type { JobTemplate } from '#/db/schema'
+} from "../hooks";
+import type { JobTemplate } from "@/db/schema";
 
 // ─── Form schema ──────────────────────────────────────────────────────────────
 
 const templateFormSchema = z.object({
-  name: z.string().min(1, 'Name is required').max(100),
+  name: z.string().min(1, "Name is required").max(100),
   stages: z
-    .array(z.object({ value: z.string().min(1, 'Stage value is required'), label: z.string().min(1, 'Stage label is required') }))
-    .min(1, 'At least one stage is required'),
+    .array(
+      z.object({
+        value: z.string().min(1, "Stage value is required"),
+        label: z.string().min(1, "Stage label is required"),
+      }),
+    )
+    .min(1, "At least one stage is required"),
   defaultTasksText: z.string(),
-})
+});
 
-type TemplateFormValues = z.infer<typeof templateFormSchema>
+type TemplateFormValues = z.infer<typeof templateFormSchema>;
 
 function deriveStageValue(label: string): string {
-  return label.toUpperCase().replace(/[^A-Z0-9]+/g, '_').replace(/^_|_$/g, '') || 'STAGE'
+  return (
+    label
+      .toUpperCase()
+      .replace(/[^A-Z0-9]+/g, "_")
+      .replace(/^_|_$/g, "") || "STAGE"
+  );
 }
 
 // ─── Template Form Dialog ─────────────────────────────────────────────────────
 
 interface TemplateFormDialogProps {
-  open: boolean
-  onOpenChange: (v: boolean) => void
-  template?: JobTemplate
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  template?: JobTemplate;
 }
 
-function TemplateFormDialog({ open, onOpenChange, template }: TemplateFormDialogProps) {
-  const createTemplate = useCreateTemplate()
-  const updateTemplate = useUpdateTemplate()
-  const isEdit = !!template
+function TemplateFormDialog({
+  open,
+  onOpenChange,
+  template,
+}: TemplateFormDialogProps) {
+  const createTemplate = useCreateTemplate();
+  const updateTemplate = useUpdateTemplate();
+  const isEdit = !!template;
 
   const form = useForm<TemplateFormValues>({
     resolver: zodResolver(templateFormSchema),
@@ -67,56 +81,66 @@ function TemplateFormDialog({ open, onOpenChange, template }: TemplateFormDialog
       ? {
           name: template.name,
           stages: template.stages,
-          defaultTasksText: template.defaultTasks.join('\n'),
+          defaultTasksText: template.defaultTasks.join("\n"),
         }
       : {
-          name: '',
-          stages: [{ value: 'IN_PROGRESS', label: 'In Progress' }],
-          defaultTasksText: '',
+          name: "",
+          stages: [{ value: "IN_PROGRESS", label: "In Progress" }],
+          defaultTasksText: "",
         },
-  })
+  });
 
-  const { fields, append, remove } = useFieldArray({ control: form.control, name: 'stages' })
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "stages",
+  });
 
   const onSubmit = (values: TemplateFormValues) => {
     const defaultTasks = values.defaultTasksText
-      .split('\n')
+      .split("\n")
       .map((t) => t.trim())
-      .filter(Boolean)
+      .filter(Boolean);
 
     if (isEdit && template) {
       updateTemplate.mutate(
-        { id: template.id, name: values.name, stages: values.stages, defaultTasks },
+        {
+          id: template.id,
+          name: values.name,
+          stages: values.stages,
+          defaultTasks,
+        },
         {
           onSuccess: () => {
-            toast.success('Template updated')
-            onOpenChange(false)
+            toast.success("Template updated");
+            onOpenChange(false);
           },
           onError: (err: Error) => toast.error(err.message),
         },
-      )
+      );
     } else {
       createTemplate.mutate(
         { name: values.name, stages: values.stages, defaultTasks },
         {
           onSuccess: () => {
-            toast.success('Template created')
-            onOpenChange(false)
-            form.reset()
+            toast.success("Template created");
+            onOpenChange(false);
+            form.reset();
           },
           onError: (err: Error) => toast.error(err.message),
         },
-      )
+      );
     }
-  }
+  };
 
-  const isPending = createTemplate.isPending || updateTemplate.isPending
+  const isPending = createTemplate.isPending || updateTemplate.isPending;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[560px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{isEdit ? 'Edit Template' : 'Create Template'}</DialogTitle>
+          <DialogTitle>
+            {isEdit ? "Edit Template" : "Create Template"}
+          </DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
@@ -151,11 +175,11 @@ function TemplateFormDialog({ open, onOpenChange, template }: TemplateFormDialog
                               placeholder="Stage label"
                               {...f}
                               onChange={(e) => {
-                                f.onChange(e)
+                                f.onChange(e);
                                 form.setValue(
                                   `stages.${idx}.value`,
                                   deriveStageValue(e.target.value),
-                                )
+                                );
                               }}
                             />
                           </FormControl>
@@ -167,8 +191,7 @@ function TemplateFormDialog({ open, onOpenChange, template }: TemplateFormDialog
                       type="button"
                       onClick={() => remove(idx)}
                       disabled={fields.length <= 1}
-                      className="text-muted-foreground hover:text-destructive disabled:opacity-30"
-                    >
+                      className="text-muted-foreground hover:text-destructive disabled:opacity-30">
                       <X className="h-4 w-4" />
                     </button>
                   </div>
@@ -178,13 +201,14 @@ function TemplateFormDialog({ open, onOpenChange, template }: TemplateFormDialog
                 type="button"
                 variant="outline"
                 size="sm"
-                onClick={() => append({ value: 'NEW_STAGE', label: '' })}
-              >
+                onClick={() => append({ value: "NEW_STAGE", label: "" })}>
                 <Plus className="h-3 w-3 mr-1" />
                 Add Stage
               </Button>
               {form.formState.errors.stages?.root && (
-                <p className="text-sm text-destructive">{form.formState.errors.stages.root.message}</p>
+                <p className="text-sm text-destructive">
+                  {form.formState.errors.stages.root.message}
+                </p>
               )}
             </div>
 
@@ -194,7 +218,12 @@ function TemplateFormDialog({ open, onOpenChange, template }: TemplateFormDialog
               name="defaultTasksText"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Default Tasks <span className="text-muted-foreground font-normal">(one per line)</span></FormLabel>
+                  <FormLabel>
+                    Default Tasks{" "}
+                    <span className="text-muted-foreground font-normal">
+                      (one per line)
+                    </span>
+                  </FormLabel>
                   <FormControl>
                     <Textarea
                       placeholder="Schedule initial meeting&#10;Collect client documents&#10;..."
@@ -208,29 +237,36 @@ function TemplateFormDialog({ open, onOpenChange, template }: TemplateFormDialog
             />
 
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}>
                 Cancel
               </Button>
               <Button type="submit" disabled={isPending}>
-                {isPending ? 'Saving...' : isEdit ? 'Save Changes' : 'Create Template'}
+                {isPending
+                  ? "Saving..."
+                  : isEdit
+                    ? "Save Changes"
+                    : "Create Template"}
               </Button>
             </DialogFooter>
           </form>
         </Form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
 
 // ─── Template Manager ─────────────────────────────────────────────────────────
 
 export default function TemplateManager() {
-  const { data: templates } = useTemplates()
-  const cloneTemplate = useCloneTemplate()
-  const deleteTemplate = useDeleteTemplate()
+  const { data: templates } = useTemplates();
+  const cloneTemplate = useCloneTemplate();
+  const deleteTemplate = useDeleteTemplate();
 
-  const [createOpen, setCreateOpen] = useState(false)
-  const [editTarget, setEditTarget] = useState<JobTemplate | null>(null)
+  const [createOpen, setCreateOpen] = useState(false);
+  const [editTarget, setEditTarget] = useState<JobTemplate | null>(null);
 
   const handleClone = (tmpl: JobTemplate) => {
     cloneTemplate.mutate(
@@ -239,19 +275,20 @@ export default function TemplateManager() {
         onSuccess: () => toast.success(`Cloned "${tmpl.name}"`),
         onError: (err: Error) => toast.error(err.message),
       },
-    )
-  }
+    );
+  };
 
   const handleDelete = (tmpl: JobTemplate) => {
-    if (!confirm(`Delete template "${tmpl.name}"? This cannot be undone.`)) return
+    if (!confirm(`Delete template "${tmpl.name}"? This cannot be undone.`))
+      return;
     deleteTemplate.mutate(
       { id: tmpl.id },
       {
-        onSuccess: () => toast.success('Template deleted'),
+        onSuccess: () => toast.success("Template deleted"),
         onError: (err: Error) => toast.error(err.message),
       },
-    )
-  }
+    );
+  };
 
   return (
     <div className="space-y-4">
@@ -270,8 +307,8 @@ export default function TemplateManager() {
 
       <div className="rounded-xl border bg-background divide-y">
         {templates.map((tmpl) => {
-          const displayStages = tmpl.stages.slice(0, 4)
-          const extra = tmpl.stages.length - displayStages.length
+          const displayStages = tmpl.stages.slice(0, 4);
+          const extra = tmpl.stages.length - displayStages.length;
 
           return (
             <div key={tmpl.id} className="flex items-center gap-4 px-4 py-3">
@@ -280,20 +317,23 @@ export default function TemplateManager() {
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="font-medium text-sm">{tmpl.name}</span>
                   {tmpl.isSystem && (
-                    <Badge variant="outline" className="text-xs">System</Badge>
+                    <Badge variant="outline" className="text-xs">
+                      System
+                    </Badge>
                   )}
                 </div>
                 <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
                   {displayStages.map((s) => (
                     <span
                       key={s.value}
-                      className="text-xs bg-muted px-2 py-0.5 rounded-full text-muted-foreground"
-                    >
+                      className="text-xs bg-muted px-2 py-0.5 rounded-full text-muted-foreground">
                       {s.label}
                     </span>
                   ))}
                   {extra > 0 && (
-                    <span className="text-xs text-muted-foreground">+{extra} more</span>
+                    <span className="text-xs text-muted-foreground">
+                      +{extra} more
+                    </span>
                   )}
                 </div>
               </div>
@@ -311,8 +351,7 @@ export default function TemplateManager() {
                   size="sm"
                   onClick={() => handleClone(tmpl)}
                   disabled={cloneTemplate.isPending}
-                  title="Clone"
-                >
+                  title="Clone">
                   <Copy className="h-4 w-4" />
                 </Button>
                 {!tmpl.isSystem && (
@@ -321,8 +360,7 @@ export default function TemplateManager() {
                       variant="ghost"
                       size="sm"
                       onClick={() => setEditTarget(tmpl)}
-                      title="Edit"
-                    >
+                      title="Edit">
                       <Pencil className="h-4 w-4" />
                     </Button>
                     <Button
@@ -331,15 +369,14 @@ export default function TemplateManager() {
                       className="text-muted-foreground hover:text-destructive"
                       onClick={() => handleDelete(tmpl)}
                       disabled={deleteTemplate.isPending}
-                      title="Delete"
-                    >
+                      title="Delete">
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </>
                 )}
               </div>
             </div>
-          )
+          );
         })}
 
         {templates.length === 0 && (
@@ -354,10 +391,12 @@ export default function TemplateManager() {
       {editTarget && (
         <TemplateFormDialog
           open
-          onOpenChange={(v) => { if (!v) setEditTarget(null) }}
+          onOpenChange={(v) => {
+            if (!v) setEditTarget(null);
+          }}
           template={editTarget}
         />
       )}
     </div>
-  )
+  );
 }

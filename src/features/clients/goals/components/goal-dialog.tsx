@@ -1,6 +1,6 @@
-import { useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Dialog,
   DialogContent,
@@ -8,17 +8,17 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '#/components/ui/dialog'
-import { Button } from '#/components/ui/button'
-import { Input } from '#/components/ui/input'
-import { Textarea } from '#/components/ui/textarea'
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '#/components/ui/select'
+} from "@/components/ui/select";
 import {
   Form,
   FormControl,
@@ -26,72 +26,88 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '#/components/ui/form'
-import { Plus } from 'lucide-react'
-import { toast } from 'sonner'
+} from "@/components/ui/form";
+import { Plus } from "lucide-react";
+import { toast } from "sonner";
 import {
   goalFormSchema,
   type GoalFormValues,
   GOAL_CATEGORIES,
   GOAL_STATUSES,
   GOAL_PRIORITIES,
-} from '../schemas'
-import { useCreateGoal, useUpdateGoal } from '../hooks'
-import type { ClientGoal } from '#/db/schema'
+} from "../schemas";
+import { useCreateGoal, useUpdateGoal } from "../hooks";
+import type { ClientGoal } from "@/db/schema";
 
 interface GoalDialogProps {
-  clientId: string
-  goal?: ClientGoal
-  trigger?: React.ReactNode
-  onClose?: () => void
+  clientId: string;
+  goal?: ClientGoal;
+  trigger?: React.ReactNode;
+  onClose?: () => void;
 }
 
-export default function GoalDialog({ clientId, goal, trigger, onClose }: GoalDialogProps) {
-  const [open, setOpen] = useState(false)
-  const createGoal = useCreateGoal()
-  const updateGoal = useUpdateGoal()
-  const isEditing = !!goal
+export default function GoalDialog({
+  clientId,
+  goal,
+  trigger,
+  onClose,
+}: GoalDialogProps) {
+  const [open, setOpen] = useState(false);
+  const createGoal = useCreateGoal();
+  const updateGoal = useUpdateGoal();
+  const isEditing = !!goal;
 
   const form = useForm<GoalFormValues>({
     resolver: zodResolver(goalFormSchema),
     defaultValues: {
-      category: goal?.category ?? 'OTHER',
-      name: goal?.name ?? '',
+      category: goal?.category ?? "OTHER",
+      name: goal?.name ?? "",
       targetAmount: goal?.targetAmount ?? undefined,
       currentAmount: goal?.currentAmount ?? 0,
-      targetDate: goal?.targetDate ?? '',
-      priority: goal?.priority ?? 'MEDIUM',
-      status: goal?.status ?? 'ACTIVE',
-      notes: goal?.notes ?? '',
+      targetDate: goal?.targetDate ?? "",
+      priority: goal?.priority ?? "MEDIUM",
+      status: goal?.status ?? "ACTIVE",
+      notes: goal?.notes ?? "",
     },
-  })
+  });
 
   const onSubmit = (data: GoalFormValues) => {
     if (isEditing) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       updateGoal.mutate({ ...data, clientId, goalId: goal.id } as any, {
-        onSuccess: () => { toast.success('Goal updated'); handleClose() },
+        onSuccess: () => {
+          toast.success("Goal updated");
+          handleClose();
+        },
         onError: (err: Error) => toast.error(`Error: ${err.message}`),
-      })
+      });
     } else {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       createGoal.mutate({ ...data, clientId } as any, {
-        onSuccess: () => { toast.success('Goal added'); handleClose() },
+        onSuccess: () => {
+          toast.success("Goal added");
+          handleClose();
+        },
         onError: (err: Error) => toast.error(`Error: ${err.message}`),
-      })
+      });
     }
-  }
+  };
 
   const handleClose = () => {
-    setOpen(false)
-    form.reset()
-    onClose?.()
-  }
+    setOpen(false);
+    form.reset();
+    onClose?.();
+  };
 
-  const isPending = createGoal.isPending || updateGoal.isPending
+  const isPending = createGoal.isPending || updateGoal.isPending;
 
   return (
-    <Dialog open={open} onOpenChange={(v) => { if (!v) handleClose(); else setOpen(true) }}>
+    <Dialog
+      open={open}
+      onOpenChange={(v) => {
+        if (!v) handleClose();
+        else setOpen(true);
+      }}>
       <DialogTrigger asChild>
         {trigger ?? (
           <Button>
@@ -102,7 +118,7 @@ export default function GoalDialog({ clientId, goal, trigger, onClose }: GoalDia
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>{isEditing ? 'Edit Goal' : 'Add Goal'}</DialogTitle>
+          <DialogTitle>{isEditing ? "Edit Goal" : "Add Goal"}</DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
@@ -122,7 +138,9 @@ export default function GoalDialog({ clientId, goal, trigger, onClose }: GoalDia
                       </FormControl>
                       <SelectContent>
                         {GOAL_CATEGORIES.map((c) => (
-                          <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
+                          <SelectItem key={c.value} value={c.value}>
+                            {c.label}
+                          </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -145,7 +163,9 @@ export default function GoalDialog({ clientId, goal, trigger, onClose }: GoalDia
                       </FormControl>
                       <SelectContent>
                         {GOAL_PRIORITIES.map((p) => (
-                          <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>
+                          <SelectItem key={p.value} value={p.value}>
+                            {p.label}
+                          </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -162,7 +182,10 @@ export default function GoalDialog({ clientId, goal, trigger, onClose }: GoalDia
                 <FormItem>
                   <FormLabel>Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g. Save $500k for retirement" {...field} />
+                    <Input
+                      placeholder="e.g. Save $500k for retirement"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -181,9 +204,11 @@ export default function GoalDialog({ clientId, goal, trigger, onClose }: GoalDia
                         type="number"
                         min={0}
                         placeholder="Optional"
-                        value={field.value ?? ''}
+                        value={field.value ?? ""}
                         onChange={(e) =>
-                          field.onChange(e.target.value ? Number(e.target.value) : undefined)
+                          field.onChange(
+                            e.target.value ? Number(e.target.value) : undefined,
+                          )
                         }
                       />
                     </FormControl>
@@ -221,7 +246,7 @@ export default function GoalDialog({ clientId, goal, trigger, onClose }: GoalDia
                   <FormItem>
                     <FormLabel>Target Date</FormLabel>
                     <FormControl>
-                      <Input type="date" {...field} value={field.value ?? ''} />
+                      <Input type="date" {...field} value={field.value ?? ""} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -242,7 +267,9 @@ export default function GoalDialog({ clientId, goal, trigger, onClose }: GoalDia
                       </FormControl>
                       <SelectContent>
                         {GOAL_STATUSES.map((s) => (
-                          <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
+                          <SelectItem key={s.value} value={s.value}>
+                            {s.label}
+                          </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -259,7 +286,11 @@ export default function GoalDialog({ clientId, goal, trigger, onClose }: GoalDia
                 <FormItem>
                   <FormLabel>Notes</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Optional notes..." rows={2} {...field} />
+                    <Textarea
+                      placeholder="Optional notes..."
+                      rows={2}
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -267,14 +298,20 @@ export default function GoalDialog({ clientId, goal, trigger, onClose }: GoalDia
             />
 
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={handleClose}>Cancel</Button>
+              <Button type="button" variant="outline" onClick={handleClose}>
+                Cancel
+              </Button>
               <Button type="submit" disabled={isPending}>
-                {isPending ? 'Saving...' : isEditing ? 'Save Changes' : 'Add Goal'}
+                {isPending
+                  ? "Saving..."
+                  : isEditing
+                    ? "Save Changes"
+                    : "Add Goal"}
               </Button>
             </DialogFooter>
           </form>
         </Form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

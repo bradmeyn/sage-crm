@@ -1,46 +1,46 @@
-import { createServerFn } from '@tanstack/react-start'
-import { getRequest } from '@tanstack/react-start/server'
-import { authMiddleware } from '#/server/middleware'
-import { auth } from '#/lib/auth'
-import { db } from '#/db/index'
-import { invitation, organization, user } from '#/db/schema'
-import { eq } from 'drizzle-orm'
-import { z } from 'zod'
+import { createServerFn } from "@tanstack/react-start";
+import { getRequest } from "@tanstack/react-start/server";
+import { authMiddleware } from "@/server/middleware";
+import { auth } from "@/lib/auth";
+import { db } from "@/db/index";
+import { invitation, organization, user } from "@/db/schema";
+import { eq } from "drizzle-orm";
+import { z } from "zod";
 
 const inviteMemberSchema = z.object({
   email: z.string().email(),
-  role: z.enum(['admin', 'member']),
-})
+  role: z.enum(["admin", "member"]),
+});
 
 const cancelInvitationSchema = z.object({
   invitationId: z.string(),
-})
+});
 
 const removeMemberSchema = z.object({
   memberId: z.string(),
-})
+});
 
 const updateMemberRoleSchema = z.object({
   memberId: z.string(),
-  role: z.enum(['admin', 'member']),
-})
+  role: z.enum(["admin", "member"]),
+});
 
-export const getOrgDetails = createServerFn({ method: 'GET' })
+export const getOrgDetails = createServerFn({ method: "GET" })
   .middleware([authMiddleware])
   .handler(async ({ context }) => {
-    const orgId = context.session.session.activeOrganizationId!
+    const orgId = context.session.session.activeOrganizationId!;
     const org = await auth.api.getFullOrganization({
       headers: getRequest().headers,
       query: { organizationId: orgId },
-    })
-    return org
-  })
+    });
+    return org;
+  });
 
-export const inviteMember = createServerFn({ method: 'POST' })
+export const inviteMember = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
-  .inputValidator(inviteMemberSchema)
+  .validator(inviteMemberSchema)
   .handler(async ({ context, data }) => {
-    const orgId = context.session.session.activeOrganizationId!
+    const orgId = context.session.session.activeOrganizationId!;
     await auth.api.createInvitation({
       headers: getRequest().headers,
       body: {
@@ -48,59 +48,59 @@ export const inviteMember = createServerFn({ method: 'POST' })
         email: data.email,
         role: data.role,
       },
-    })
-    return { success: true }
-  })
+    });
+    return { success: true };
+  });
 
-export const cancelInvitation = createServerFn({ method: 'POST' })
+export const cancelInvitation = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
-  .inputValidator(cancelInvitationSchema)
+  .validator(cancelInvitationSchema)
   .handler(async ({ context: _context, data }) => {
     await auth.api.cancelInvitation({
       headers: getRequest().headers,
       body: { invitationId: data.invitationId },
-    })
-    return { success: true }
-  })
+    });
+    return { success: true };
+  });
 
-export const removeMember = createServerFn({ method: 'POST' })
+export const removeMember = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
-  .inputValidator(removeMemberSchema)
+  .validator(removeMemberSchema)
   .handler(async ({ context: _context, data }) => {
     await auth.api.removeMember({
       headers: getRequest().headers,
       body: { memberIdOrEmail: data.memberId },
-    })
-    return { success: true }
-  })
+    });
+    return { success: true };
+  });
 
-export const updateMemberRole = createServerFn({ method: 'POST' })
+export const updateMemberRole = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
-  .inputValidator(updateMemberRoleSchema)
+  .validator(updateMemberRoleSchema)
   .handler(async ({ context: _context, data }) => {
     await auth.api.updateMemberRole({
       headers: getRequest().headers,
       body: { memberId: data.memberId, role: data.role },
-    })
-    return { success: true }
-  })
+    });
+    return { success: true };
+  });
 
 // Public — no auth required; queries DB directly for invitation + org + inviter name
-export const getInvitationDetails = createServerFn({ method: 'GET' })
-  .inputValidator(z.object({ invitationId: z.string() }))
+export const getInvitationDetails = createServerFn({ method: "GET" })
+  .validator(z.object({ invitationId: z.string() }))
   .handler(async ({ data }) => {
     const row = await db.query.invitation.findFirst({
       where: eq(invitation.id, data.invitationId),
-    })
-    if (!row) return null
+    });
+    if (!row) return null;
 
     const org = await db.query.organization.findFirst({
       where: eq(organization.id, row.organizationId),
-    })
+    });
 
     const inviter = await db.query.user.findFirst({
       where: eq(user.id, row.inviterId),
-    })
+    });
 
     return {
       id: row.id,
@@ -110,5 +110,5 @@ export const getInvitationDetails = createServerFn({ method: 'GET' })
       expiresAt: row.expiresAt,
       organizationName: org?.name ?? null,
       inviterName: inviter?.name ?? null,
-    }
-  })
+    };
+  });

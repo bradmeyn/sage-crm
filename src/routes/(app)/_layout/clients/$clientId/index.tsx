@@ -1,23 +1,23 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { Card, CardContent, CardHeader, CardTitle } from '#/components/ui/card'
-import { getClient } from '#/server/functions/clients'
-import type { ClientWithPartner } from '#/server/functions/clients'
-import { clientKeys } from '#/features/clients/hooks'
-import PartnerSection from '#/features/clients/components/partner-section'
+import { createFileRoute } from "@tanstack/react-router";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { getClient } from "@/server/functions/clients";
+import type { ClientWithPartner } from "@/server/functions/clients";
+import { clientKeys } from "@/features/clients/hooks";
+import PartnerSection from "@/features/clients/components/partner-section";
 
-export const Route = createFileRoute('/(app)/_layout/clients/$clientId/')({
+export const Route = createFileRoute("/(app)/_layout/clients/$clientId/")({
   component: ClientDetailPage,
   errorComponent: () => <div>Error loading client</div>,
   loader: async ({ context, params: { clientId } }) => {
     return context.queryClient.ensureQueryData({
       queryKey: clientKeys.detail(clientId),
       queryFn: () => getClient({ data: { clientId } }),
-    })
+    });
   },
-})
+});
 
 function ClientDetailPage() {
-  const client = Route.useLoaderData() as ClientWithPartner
+  const client = Route.useLoaderData() as ClientWithPartner;
 
   return (
     <Card>
@@ -30,19 +30,19 @@ function ClientDetailPage() {
           <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2">
             <div>
               <dt className="text-sm text-muted-foreground">Title</dt>
-              <dd className="mt-1 text-sm">{client.title ?? '—'}</dd>
+              <dd className="mt-1 text-sm">{client.title ?? "—"}</dd>
             </div>
             <div>
               <dt className="text-sm text-muted-foreground">First name</dt>
-              <dd className="mt-1 text-sm">{client.firstName ?? '—'}</dd>
+              <dd className="mt-1 text-sm">{client.firstName ?? "—"}</dd>
             </div>
             <div>
               <dt className="text-sm text-muted-foreground">Last name</dt>
-              <dd className="mt-1 text-sm">{client.lastName ?? '—'}</dd>
+              <dd className="mt-1 text-sm">{client.lastName ?? "—"}</dd>
             </div>
             <div>
               <dt className="text-sm text-muted-foreground">Preferred name</dt>
-              <dd className="mt-1 text-sm">{client.preferredName ?? '—'}</dd>
+              <dd className="mt-1 text-sm">{client.preferredName ?? "—"}</dd>
             </div>
           </dl>
         </div>
@@ -52,11 +52,11 @@ function ClientDetailPage() {
           <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2">
             <div>
               <dt className="text-sm text-muted-foreground">Email</dt>
-              <dd className="mt-1 text-sm">{client.email ?? '—'}</dd>
+              <dd className="mt-1 text-sm">{client.email ?? "—"}</dd>
             </div>
             <div>
               <dt className="text-sm text-muted-foreground">Phone</dt>
-              <dd className="mt-1 text-sm">{client.phone ?? '—'}</dd>
+              <dd className="mt-1 text-sm">{client.phone ?? "—"}</dd>
             </div>
           </dl>
         </div>
@@ -64,5 +64,5 @@ function ClientDetailPage() {
         <PartnerSection client={client} />
       </CardContent>
     </Card>
-  )
+  );
 }

@@ -1,6 +1,6 @@
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
-import { useRef, useState } from 'react'
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { useRef, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -9,17 +9,17 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '#/components/ui/dialog'
-import { Button } from '#/components/ui/button'
-import { Input } from '#/components/ui/input'
-import { Textarea } from '#/components/ui/textarea'
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '#/components/ui/select'
+} from "@/components/ui/select";
 import {
   Form,
   FormControl,
@@ -28,59 +28,66 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '#/components/ui/form'
-import { useCreateFileNote } from '#/features/clients/file-notes/hooks'
-import { noteSchema, type NewNote, NOTE_TYPES } from '#/features/clients/file-notes/schemas'
-import { FileText, Plus, Upload } from 'lucide-react'
-import { toast } from 'sonner'
+} from "@/components/ui/form";
+import { useCreateFileNote } from "@/features/clients/file-notes/hooks";
+import {
+  noteSchema,
+  type NewNote,
+  NOTE_TYPES,
+} from "@/features/clients/file-notes/schemas";
+import { FileText, Plus, Upload } from "lucide-react";
+import { toast } from "sonner";
 
 interface AddNoteDialogProps {
-  clientId: string
-  trigger?: React.ReactNode
+  clientId: string;
+  trigger?: React.ReactNode;
 }
 
-export default function AddNoteDialog({ clientId, trigger }: AddNoteDialogProps) {
-  const [open, setOpen] = useState(false)
-  const [files, setFiles] = useState<File[]>([])
-  const [isDragging, setIsDragging] = useState(false)
-  const fileInputRef = useRef<HTMLInputElement | null>(null)
-  const createFileNoteMutation = useCreateFileNote()
+export default function AddNoteDialog({
+  clientId,
+  trigger,
+}: AddNoteDialogProps) {
+  const [open, setOpen] = useState(false);
+  const [files, setFiles] = useState<File[]>([]);
+  const [isDragging, setIsDragging] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const createFileNoteMutation = useCreateFileNote();
 
   const form = useForm<NewNote>({
     resolver: zodResolver(noteSchema),
     defaultValues: {
-      title: '',
-      body: '',
-      noteType: 'GENERAL',
+      title: "",
+      body: "",
+      noteType: "GENERAL",
       isPrivate: false,
     },
-  })
+  });
 
   const onSubmit = (data: NewNote) => {
     createFileNoteMutation.mutate(
       { ...data, clientId, files },
       {
         onSuccess: () => {
-          toast.success('File note created successfully')
-          setOpen(false)
-          setFiles([])
-          form.reset()
+          toast.success("File note created successfully");
+          setOpen(false);
+          setFiles([]);
+          form.reset();
         },
         onError: (error: Error) => {
-          toast.error(`Error creating file note: ${error.message}`)
+          toast.error(`Error creating file note: ${error.message}`);
         },
       },
-    )
-  }
+    );
+  };
 
   const handleOpenChange = (newOpen: boolean) => {
-    setOpen(newOpen)
+    setOpen(newOpen);
     if (!newOpen) {
-      setFiles([])
-      setIsDragging(false)
-      form.reset()
+      setFiles([]);
+      setIsDragging(false);
+      form.reset();
     }
-  }
+  };
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -164,9 +171,10 @@ export default function AddNoteDialog({ clientId, trigger }: AddNoteDialogProps)
                 <FormItem>
                   <FormLabel>Visibility</FormLabel>
                   <Select
-                    onValueChange={(value) => field.onChange(value === 'private')}
-                    value={field.value ? 'private' : 'shared'}
-                  >
+                    onValueChange={(value) =>
+                      field.onChange(value === "private")
+                    }
+                    value={field.value ? "private" : "shared"}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select visibility..." />
@@ -187,26 +195,29 @@ export default function AddNoteDialog({ clientId, trigger }: AddNoteDialogProps)
               <FormControl>
                 <div
                   className={`flex flex-col items-center justify-center gap-2 rounded-md border border-dashed px-4 py-6 text-sm transition ${
-                    isDragging ? 'border-primary bg-primary/5' : 'border-muted-foreground/40'
+                    isDragging
+                      ? "border-primary bg-primary/5"
+                      : "border-muted-foreground/40"
                   }`}
                   onDragOver={(event) => {
-                    event.preventDefault()
-                    setIsDragging(true)
+                    event.preventDefault();
+                    setIsDragging(true);
                   }}
                   onDragLeave={() => setIsDragging(false)}
                   onDrop={(event) => {
-                    event.preventDefault()
-                    setIsDragging(false)
+                    event.preventDefault();
+                    setIsDragging(false);
                     const droppedFiles = event.dataTransfer.files
                       ? Array.from(event.dataTransfer.files)
-                      : []
-                    if (droppedFiles.length > 0) setFiles(droppedFiles)
+                      : [];
+                    if (droppedFiles.length > 0) setFiles(droppedFiles);
                   }}
-                  onClick={() => fileInputRef.current?.click()}
-                >
+                  onClick={() => fileInputRef.current?.click()}>
                   <Upload className="h-5 w-5 text-muted-foreground" />
                   <div className="text-center">
-                    <div className="font-medium">Drag files here, or click to browse</div>
+                    <div className="font-medium">
+                      Drag files here, or click to browse
+                    </div>
                     <div className="text-xs text-muted-foreground">
                       Attach PDFs and other documents
                     </div>
@@ -219,13 +230,15 @@ export default function AddNoteDialog({ clientId, trigger }: AddNoteDialogProps)
                     onChange={(event) => {
                       const selectedFiles = event.target.files
                         ? Array.from(event.target.files)
-                        : []
-                      setFiles(selectedFiles)
+                        : [];
+                      setFiles(selectedFiles);
                     }}
                   />
                 </div>
               </FormControl>
-              <FormDescription>Uploaded files will be linked to this file note.</FormDescription>
+              <FormDescription>
+                Uploaded files will be linked to this file note.
+              </FormDescription>
               <FormMessage />
             </FormItem>
 
@@ -234,8 +247,7 @@ export default function AddNoteDialog({ clientId, trigger }: AddNoteDialogProps)
                 {files.map((file) => (
                   <div
                     key={`${file.name}-${file.lastModified}`}
-                    className="flex items-center justify-between rounded-md border px-3 py-2 text-sm"
-                  >
+                    className="flex items-center justify-between rounded-md border px-3 py-2 text-sm">
                     <div className="flex items-center gap-2 min-w-0">
                       <FileText className="h-4 w-4 shrink-0 text-muted-foreground" />
                       <div className="truncate">{file.name}</div>
@@ -249,16 +261,21 @@ export default function AddNoteDialog({ clientId, trigger }: AddNoteDialogProps)
             )}
 
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setOpen(false)}>
                 Cancel
               </Button>
               <Button type="submit" disabled={createFileNoteMutation.isPending}>
-                {createFileNoteMutation.isPending ? 'Creating...' : 'Create File Note'}
+                {createFileNoteMutation.isPending
+                  ? "Creating..."
+                  : "Create File Note"}
               </Button>
             </DialogFooter>
           </form>
         </Form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

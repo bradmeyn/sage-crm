@@ -1,33 +1,33 @@
-import { Link } from '@tanstack/react-router'
-import { Heart, Unlink } from 'lucide-react'
-import { Button } from '#/components/ui/button'
-import { toast } from 'sonner'
-import { useUnlinkPartner } from '#/features/clients/hooks'
-import LinkPartnerDialog from './link-partner-dialog'
-import { PARTNER_RELATIONSHIPS } from '#/features/clients/schemas'
-import type { ClientWithPartner } from '#/server/functions/clients'
+import { Link } from "@tanstack/react-router";
+import { Heart, Unlink } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import { useUnlinkPartner } from "@/features/clients/hooks";
+import LinkPartnerDialog from "./link-partner-dialog";
+import { PARTNER_RELATIONSHIPS } from "@/features/clients/schemas";
+import type { ClientWithPartner } from "@/server/functions/clients";
 
 interface Props {
-  client: ClientWithPartner
+  client: ClientWithPartner;
 }
 
 export default function PartnerSection({ client }: Props) {
-  const unlinkPartner = useUnlinkPartner()
+  const unlinkPartner = useUnlinkPartner();
 
   const relationshipLabel =
-    PARTNER_RELATIONSHIPS.find((r) => r.value === client.partnerRelationship)?.label ??
-    client.partnerRelationship
+    PARTNER_RELATIONSHIPS.find((r) => r.value === client.partnerRelationship)
+      ?.label ?? client.partnerRelationship;
 
   const handleUnlink = () => {
-    if (!client.partner) return
+    if (!client.partner) return;
     unlinkPartner.mutate(
       { clientId: client.id, currentPartnerId: client.partner.id },
       {
-        onSuccess: () => toast.success('Partner unlinked'),
+        onSuccess: () => toast.success("Partner unlinked"),
         onError: (err: Error) => toast.error(err.message),
       },
-    )
-  }
+    );
+  };
 
   return (
     <div className="mb-6 max-w-xl">
@@ -44,15 +44,17 @@ export default function PartnerSection({ client }: Props) {
               <Link
                 to="/clients/$clientId"
                 params={{ clientId: client.partner.id }}
-                className="text-sm font-medium hover:underline"
-              >
+                className="text-sm font-medium hover:underline">
                 {client.partner.firstName}
-                {client.partner.preferredName ? ` (${client.partner.preferredName})` : ''}
-                {' '}
+                {client.partner.preferredName
+                  ? ` (${client.partner.preferredName})`
+                  : ""}{" "}
                 {client.partner.lastName}
               </Link>
               {relationshipLabel && (
-                <p className="text-xs text-muted-foreground mt-0.5">{relationshipLabel}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {relationshipLabel}
+                </p>
               )}
             </div>
           </div>
@@ -61,8 +63,7 @@ export default function PartnerSection({ client }: Props) {
             size="sm"
             onClick={handleUnlink}
             disabled={unlinkPartner.isPending}
-            className="text-muted-foreground hover:text-destructive"
-          >
+            className="text-muted-foreground hover:text-destructive">
             <Unlink className="h-4 w-4 mr-1.5" />
             Unlink
           </Button>
@@ -71,5 +72,5 @@ export default function PartnerSection({ client }: Props) {
         <p className="text-sm text-muted-foreground">No partner on file</p>
       )}
     </div>
-  )
+  );
 }

@@ -1,6 +1,6 @@
-import { useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Dialog,
   DialogContent,
@@ -8,17 +8,17 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '#/components/ui/dialog'
-import { Button } from '#/components/ui/button'
-import { Input } from '#/components/ui/input'
-import { Textarea } from '#/components/ui/textarea'
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '#/components/ui/select'
+} from "@/components/ui/select";
 import {
   Form,
   FormControl,
@@ -26,82 +26,86 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '#/components/ui/form'
-import { Plus } from 'lucide-react'
-import { toast } from 'sonner'
+} from "@/components/ui/form";
+import { Plus } from "lucide-react";
+import { toast } from "sonner";
 import {
   incomeFormSchema,
   type IncomeFormValues,
   INCOME_CATEGORIES,
   FREQUENCIES,
   INCOME_OWNER_OPTIONS,
-} from '../schemas'
-import { useCreateIncome, useUpdateIncome } from '../hooks'
-import type { ClientIncome } from '#/db/schema'
+} from "../schemas";
+import { useCreateIncome, useUpdateIncome } from "../hooks";
+import type { ClientIncome } from "@/db/schema";
 
 interface IncomeDialogProps {
-  clientId: string
-  income?: ClientIncome
-  trigger?: React.ReactNode
-  onClose?: () => void
+  clientId: string;
+  income?: ClientIncome;
+  trigger?: React.ReactNode;
+  onClose?: () => void;
 }
 
-export default function IncomeDialog({ clientId, income, trigger, onClose }: IncomeDialogProps) {
-  const [open, setOpen] = useState(false)
-  const createIncome = useCreateIncome()
-  const updateIncome = useUpdateIncome()
-  const isEditing = !!income
+export default function IncomeDialog({
+  clientId,
+  income,
+  trigger,
+  onClose,
+}: IncomeDialogProps) {
+  const [open, setOpen] = useState(false);
+  const createIncome = useCreateIncome();
+  const updateIncome = useUpdateIncome();
+  const isEditing = !!income;
 
   const form = useForm<IncomeFormValues>({
     resolver: zodResolver(incomeFormSchema),
     defaultValues: {
-      category: income?.category ?? 'OTHER',
-      name: income?.name ?? '',
+      category: income?.category ?? "OTHER",
+      name: income?.name ?? "",
       amount: income?.amount ?? 0,
-      frequency: income?.frequency ?? 'ANNUALLY',
-      owner: income?.owner ?? 'CLIENT',
-      notes: income?.notes ?? '',
+      frequency: income?.frequency ?? "ANNUALLY",
+      owner: income?.owner ?? "CLIENT",
+      notes: income?.notes ?? "",
     },
-  })
+  });
 
   const onSubmit = (data: IncomeFormValues) => {
     if (isEditing) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      updateIncome.mutate(
-        { ...data, clientId, incomeId: income.id } as any,
-        {
-          onSuccess: () => {
-            toast.success('Income updated')
-            handleClose()
-          },
-          onError: (err: Error) => toast.error(`Error: ${err.message}`),
+      updateIncome.mutate({ ...data, clientId, incomeId: income.id } as any, {
+        onSuccess: () => {
+          toast.success("Income updated");
+          handleClose();
         },
-      )
+        onError: (err: Error) => toast.error(`Error: ${err.message}`),
+      });
     } else {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      createIncome.mutate(
-        { ...data, clientId } as any,
-        {
-          onSuccess: () => {
-            toast.success('Income added')
-            handleClose()
-          },
-          onError: (err: Error) => toast.error(`Error: ${err.message}`),
+      createIncome.mutate({ ...data, clientId } as any, {
+        onSuccess: () => {
+          toast.success("Income added");
+          handleClose();
         },
-      )
+        onError: (err: Error) => toast.error(`Error: ${err.message}`),
+      });
     }
-  }
+  };
 
   const handleClose = () => {
-    setOpen(false)
-    form.reset()
-    onClose?.()
-  }
+    setOpen(false);
+    form.reset();
+    onClose?.();
+  };
 
-  const isPending = createIncome.isPending || updateIncome.isPending
+  const isPending = createIncome.isPending || updateIncome.isPending;
 
   return (
-    <Dialog open={open} onOpenChange={(v) => { if (!v) handleClose(); else setOpen(true) }}>
+    <Dialog
+      open={open}
+      onOpenChange={(v) => {
+        if (!v) handleClose();
+        else setOpen(true);
+      }}>
       <DialogTrigger asChild>
         {trigger ?? (
           <Button>
@@ -112,7 +116,7 @@ export default function IncomeDialog({ clientId, income, trigger, onClose }: Inc
       </DialogTrigger>
       <DialogContent className="sm:max-w-[480px]">
         <DialogHeader>
-          <DialogTitle>{isEditing ? 'Edit Income' : 'Add Income'}</DialogTitle>
+          <DialogTitle>{isEditing ? "Edit Income" : "Add Income"}</DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
@@ -131,7 +135,9 @@ export default function IncomeDialog({ clientId, income, trigger, onClose }: Inc
                     </FormControl>
                     <SelectContent>
                       {INCOME_CATEGORIES.map((c) => (
-                        <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
+                        <SelectItem key={c.value} value={c.value}>
+                          {c.label}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -189,7 +195,9 @@ export default function IncomeDialog({ clientId, income, trigger, onClose }: Inc
                       </FormControl>
                       <SelectContent>
                         {FREQUENCIES.map((f) => (
-                          <SelectItem key={f.value} value={f.value}>{f.label}</SelectItem>
+                          <SelectItem key={f.value} value={f.value}>
+                            {f.label}
+                          </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -213,7 +221,9 @@ export default function IncomeDialog({ clientId, income, trigger, onClose }: Inc
                     </FormControl>
                     <SelectContent>
                       {INCOME_OWNER_OPTIONS.map((o) => (
-                        <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+                        <SelectItem key={o.value} value={o.value}>
+                          {o.label}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -229,7 +239,11 @@ export default function IncomeDialog({ clientId, income, trigger, onClose }: Inc
                 <FormItem>
                   <FormLabel>Notes</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Optional notes..." rows={2} {...field} />
+                    <Textarea
+                      placeholder="Optional notes..."
+                      rows={2}
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -241,12 +255,16 @@ export default function IncomeDialog({ clientId, income, trigger, onClose }: Inc
                 Cancel
               </Button>
               <Button type="submit" disabled={isPending}>
-                {isPending ? 'Saving...' : isEditing ? 'Save Changes' : 'Add Income'}
+                {isPending
+                  ? "Saving..."
+                  : isEditing
+                    ? "Save Changes"
+                    : "Add Income"}
               </Button>
             </DialogFooter>
           </form>
         </Form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

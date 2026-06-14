@@ -1,6 +1,6 @@
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
-import { useState } from 'react'
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -9,16 +9,16 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '#/components/ui/dialog'
-import { Button } from '#/components/ui/button'
-import { Input } from '#/components/ui/input'
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '#/components/ui/select'
+} from "@/components/ui/select";
 import {
   Form,
   FormControl,
@@ -26,47 +26,50 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '#/components/ui/form'
-import { type NewClient, clientSchema } from '#/features/clients/schemas'
-import { useCreateClient } from '#/features/clients/hooks'
-import { PlusCircle } from 'lucide-react'
-import { toast } from 'sonner'
-import { useNavigate } from '@tanstack/react-router'
+} from "@/components/ui/form";
+import { type NewClient, clientSchema } from "@/features/clients/schemas";
+import { useCreateClient } from "@/features/clients/hooks";
+import { PlusCircle } from "lucide-react";
+import { toast } from "sonner";
+import { useNavigate } from "@tanstack/react-router";
 
 export default function AddClientDialog() {
-  const [open, setOpen] = useState(false)
-  const navigate = useNavigate()
+  const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
 
-  const createClientMutation = useCreateClient()
+  const createClientMutation = useCreateClient();
 
   const form = useForm<NewClient>({
     resolver: zodResolver(clientSchema),
-  })
+  });
 
   const onSubmit = (data: NewClient) => {
     createClientMutation.mutate(data, {
       onSuccess: (client) => {
-        toast.success('Client created successfully', {
+        toast.success("Client created successfully", {
           action: {
-            label: 'View client',
+            label: "View client",
             onClick: () => {
-              navigate({ to: '/clients/$clientId', params: { clientId: client.id } })
+              navigate({
+                to: "/clients/$clientId",
+                params: { clientId: client.id },
+              });
             },
           },
-        })
-        setOpen(false)
-        form.reset()
+        });
+        setOpen(false);
+        form.reset();
       },
       onError: (error: Error) => {
-        toast.error(`Error creating client: ${error.message}`)
+        toast.error(`Error creating client: ${error.message}`);
       },
-    })
-  }
+    });
+  };
 
   const handleOpenChange = (newOpen: boolean) => {
-    setOpen(newOpen)
-    if (!newOpen) form.reset()
-  }
+    setOpen(newOpen);
+    if (!newOpen) form.reset();
+  };
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -78,7 +81,9 @@ export default function AddClientDialog() {
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>Add New Client</DialogTitle>
-          <DialogDescription>Add a new client to your database.</DialogDescription>
+          <DialogDescription>
+            Add a new client to your database.
+          </DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
@@ -91,7 +96,9 @@ export default function AddClientDialog() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Salutation</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value ?? ''}>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value ?? ""}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select..." />
@@ -159,7 +166,11 @@ export default function AddClientDialog() {
                     <FormItem>
                       <FormLabel>Email</FormLabel>
                       <FormControl>
-                        <Input placeholder="john@mail.com" type="email" {...field} />
+                        <Input
+                          placeholder="john@mail.com"
+                          type="email"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -172,7 +183,11 @@ export default function AddClientDialog() {
                     <FormItem>
                       <FormLabel>Phone Number</FormLabel>
                       <FormControl>
-                        <Input placeholder="0412 345 678" type="tel" {...field} />
+                        <Input
+                          placeholder="0412 345 678"
+                          type="tel"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -186,17 +201,16 @@ export default function AddClientDialog() {
                 variant="outline"
                 type="button"
                 onClick={() => setOpen(false)}
-                disabled={createClientMutation.isPending}
-              >
+                disabled={createClientMutation.isPending}>
                 Cancel
               </Button>
               <Button type="submit" disabled={createClientMutation.isPending}>
-                {createClientMutation.isPending ? 'Adding...' : 'Add Client'}
+                {createClientMutation.isPending ? "Adding..." : "Add Client"}
               </Button>
             </DialogFooter>
           </form>
         </Form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

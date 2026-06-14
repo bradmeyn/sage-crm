@@ -1,6 +1,6 @@
-import { useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Dialog,
   DialogContent,
@@ -8,17 +8,17 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '#/components/ui/dialog'
-import { Button } from '#/components/ui/button'
-import { Input } from '#/components/ui/input'
-import { Textarea } from '#/components/ui/textarea'
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '#/components/ui/select'
+} from "@/components/ui/select";
 import {
   Form,
   FormControl,
@@ -26,23 +26,23 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '#/components/ui/form'
-import { Plus } from 'lucide-react'
-import { toast } from 'sonner'
+} from "@/components/ui/form";
+import { Plus } from "lucide-react";
+import { toast } from "sonner";
 import {
   liabilityFormSchema,
   type LiabilityFormValues,
   LIABILITY_CATEGORIES,
   OWNER_OPTIONS,
-} from '../schemas'
-import { useCreateLiability, useUpdateLiability } from '../hooks'
-import type { ClientLiability } from '#/db/schema'
+} from "../schemas";
+import { useCreateLiability, useUpdateLiability } from "../hooks";
+import type { ClientLiability } from "@/db/schema";
 
 interface LiabilityDialogProps {
-  clientId: string
-  liability?: ClientLiability
-  trigger?: React.ReactNode
-  onClose?: () => void
+  clientId: string;
+  liability?: ClientLiability;
+  trigger?: React.ReactNode;
+  onClose?: () => void;
 }
 
 export default function LiabilityDialog({
@@ -51,24 +51,26 @@ export default function LiabilityDialog({
   trigger,
   onClose,
 }: LiabilityDialogProps) {
-  const [open, setOpen] = useState(false)
-  const createLiability = useCreateLiability()
-  const updateLiability = useUpdateLiability()
-  const isEditing = !!liability
+  const [open, setOpen] = useState(false);
+  const createLiability = useCreateLiability();
+  const updateLiability = useUpdateLiability();
+  const isEditing = !!liability;
 
   const form = useForm<LiabilityFormValues>({
     resolver: zodResolver(liabilityFormSchema),
     defaultValues: {
-      category: liability?.category ?? 'OTHER',
-      name: liability?.name ?? '',
+      category: liability?.category ?? "OTHER",
+      name: liability?.name ?? "",
       balance: liability?.balance ?? 0,
       limit: liability?.limit ?? undefined,
       interestRateDisplay:
-        liability?.interestRate != null ? liability.interestRate / 100 : undefined,
-      owner: liability?.owner ?? 'CLIENT',
-      notes: liability?.notes ?? '',
+        liability?.interestRate != null
+          ? liability.interestRate / 100
+          : undefined,
+      owner: liability?.owner ?? "CLIENT",
+      notes: liability?.notes ?? "",
     },
-  })
+  });
 
   const onSubmit = (data: LiabilityFormValues) => {
     const payload = {
@@ -84,42 +86,44 @@ export default function LiabilityDialog({
           : undefined,
       owner: data.owner,
       notes: data.notes,
-    }
+    };
 
     if (isEditing) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      updateLiability.mutate(
-        { ...payload, liabilityId: liability.id } as any,
-        {
-          onSuccess: () => {
-            toast.success('Liability updated')
-            handleClose()
-          },
-          onError: (err: Error) => toast.error(`Error: ${err.message}`),
+      updateLiability.mutate({ ...payload, liabilityId: liability.id } as any, {
+        onSuccess: () => {
+          toast.success("Liability updated");
+          handleClose();
         },
-      )
+        onError: (err: Error) => toast.error(`Error: ${err.message}`),
+      });
     } else {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       createLiability.mutate(payload as any, {
         onSuccess: () => {
-          toast.success('Liability added')
-          handleClose()
+          toast.success("Liability added");
+          handleClose();
         },
         onError: (err: Error) => toast.error(`Error: ${err.message}`),
-      })
+      });
     }
-  }
+  };
 
   const handleClose = () => {
-    setOpen(false)
-    form.reset()
-    onClose?.()
-  }
+    setOpen(false);
+    form.reset();
+    onClose?.();
+  };
 
-  const isPending = createLiability.isPending || updateLiability.isPending
+  const isPending = createLiability.isPending || updateLiability.isPending;
 
   return (
-    <Dialog open={open} onOpenChange={(v) => { if (!v) handleClose(); else setOpen(true) }}>
+    <Dialog
+      open={open}
+      onOpenChange={(v) => {
+        if (!v) handleClose();
+        else setOpen(true);
+      }}>
       <DialogTrigger asChild>
         {trigger ?? (
           <Button>
@@ -130,7 +134,9 @@ export default function LiabilityDialog({
       </DialogTrigger>
       <DialogContent className="sm:max-w-[480px]">
         <DialogHeader>
-          <DialogTitle>{isEditing ? 'Edit Liability' : 'Add Liability'}</DialogTitle>
+          <DialogTitle>
+            {isEditing ? "Edit Liability" : "Add Liability"}
+          </DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
@@ -149,7 +155,9 @@ export default function LiabilityDialog({
                     </FormControl>
                     <SelectContent>
                       {LIABILITY_CATEGORIES.map((c) => (
-                        <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
+                        <SelectItem key={c.value} value={c.value}>
+                          {c.label}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -204,9 +212,11 @@ export default function LiabilityDialog({
                         type="number"
                         min={0}
                         placeholder="Optional"
-                        value={field.value ?? ''}
+                        value={field.value ?? ""}
                         onChange={(e) =>
-                          field.onChange(e.target.value ? Number(e.target.value) : undefined)
+                          field.onChange(
+                            e.target.value ? Number(e.target.value) : undefined,
+                          )
                         }
                       />
                     </FormControl>
@@ -228,9 +238,11 @@ export default function LiabilityDialog({
                         max={100}
                         step={0.01}
                         placeholder="Optional"
-                        value={field.value ?? ''}
+                        value={field.value ?? ""}
                         onChange={(e) =>
-                          field.onChange(e.target.value ? Number(e.target.value) : undefined)
+                          field.onChange(
+                            e.target.value ? Number(e.target.value) : undefined,
+                          )
                         }
                       />
                     </FormControl>
@@ -254,7 +266,9 @@ export default function LiabilityDialog({
                     </FormControl>
                     <SelectContent>
                       {OWNER_OPTIONS.map((o) => (
-                        <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+                        <SelectItem key={o.value} value={o.value}>
+                          {o.label}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -270,7 +284,11 @@ export default function LiabilityDialog({
                 <FormItem>
                   <FormLabel>Notes</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Optional notes..." rows={2} {...field} />
+                    <Textarea
+                      placeholder="Optional notes..."
+                      rows={2}
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -282,12 +300,16 @@ export default function LiabilityDialog({
                 Cancel
               </Button>
               <Button type="submit" disabled={isPending}>
-                {isPending ? 'Saving...' : isEditing ? 'Save Changes' : 'Add Liability'}
+                {isPending
+                  ? "Saving..."
+                  : isEditing
+                    ? "Save Changes"
+                    : "Add Liability"}
               </Button>
             </DialogFooter>
           </form>
         </Form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

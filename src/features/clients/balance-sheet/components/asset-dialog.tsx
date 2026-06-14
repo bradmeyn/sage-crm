@@ -1,6 +1,6 @@
-import { useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Dialog,
   DialogContent,
@@ -8,17 +8,17 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '#/components/ui/dialog'
-import { Button } from '#/components/ui/button'
-import { Input } from '#/components/ui/input'
-import { Textarea } from '#/components/ui/textarea'
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '#/components/ui/select'
+} from "@/components/ui/select";
 import {
   Form,
   FormControl,
@@ -26,75 +26,84 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '#/components/ui/form'
-import { Plus } from 'lucide-react'
-import { toast } from 'sonner'
-import { assetFormSchema, type AssetFormValues, ASSET_CATEGORIES, OWNER_OPTIONS } from '../schemas'
-import { useCreateAsset, useUpdateAsset } from '../hooks'
-import type { ClientAsset } from '#/db/schema'
+} from "@/components/ui/form";
+import { Plus } from "lucide-react";
+import { toast } from "sonner";
+import {
+  assetFormSchema,
+  type AssetFormValues,
+  ASSET_CATEGORIES,
+  OWNER_OPTIONS,
+} from "../schemas";
+import { useCreateAsset, useUpdateAsset } from "../hooks";
+import type { ClientAsset } from "@/db/schema";
 
 interface AssetDialogProps {
-  clientId: string
-  asset?: ClientAsset
-  trigger?: React.ReactNode
-  onClose?: () => void
+  clientId: string;
+  asset?: ClientAsset;
+  trigger?: React.ReactNode;
+  onClose?: () => void;
 }
 
-export default function AssetDialog({ clientId, asset, trigger, onClose }: AssetDialogProps) {
-  const [open, setOpen] = useState(false)
-  const createAsset = useCreateAsset()
-  const updateAsset = useUpdateAsset()
-  const isEditing = !!asset
+export default function AssetDialog({
+  clientId,
+  asset,
+  trigger,
+  onClose,
+}: AssetDialogProps) {
+  const [open, setOpen] = useState(false);
+  const createAsset = useCreateAsset();
+  const updateAsset = useUpdateAsset();
+  const isEditing = !!asset;
 
   const form = useForm<AssetFormValues>({
     resolver: zodResolver(assetFormSchema),
     defaultValues: {
-      category: asset?.category ?? 'OTHER',
-      name: asset?.name ?? '',
+      category: asset?.category ?? "OTHER",
+      name: asset?.name ?? "",
       value: asset?.value ?? 0,
-      owner: asset?.owner ?? 'CLIENT',
-      notes: asset?.notes ?? '',
+      owner: asset?.owner ?? "CLIENT",
+      notes: asset?.notes ?? "",
     },
-  })
+  });
 
   const onSubmit = (data: AssetFormValues) => {
     if (isEditing) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      updateAsset.mutate(
-        { ...data, clientId, assetId: asset.id } as any,
-        {
-          onSuccess: () => {
-            toast.success('Asset updated')
-            handleClose()
-          },
-          onError: (err: Error) => toast.error(`Error: ${err.message}`),
+      updateAsset.mutate({ ...data, clientId, assetId: asset.id } as any, {
+        onSuccess: () => {
+          toast.success("Asset updated");
+          handleClose();
         },
-      )
+        onError: (err: Error) => toast.error(`Error: ${err.message}`),
+      });
     } else {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      createAsset.mutate(
-        { ...data, clientId } as any,
-        {
-          onSuccess: () => {
-            toast.success('Asset added')
-            handleClose()
-          },
-          onError: (err: Error) => toast.error(`Error: ${err.message}`),
+      createAsset.mutate({ ...data, clientId } as any, {
+        onSuccess: () => {
+          toast.success("Asset added");
+          handleClose();
         },
-      )
+        onError: (err: Error) => toast.error(`Error: ${err.message}`),
+      });
     }
-  }
+  };
 
   const handleClose = () => {
-    setOpen(false)
-    form.reset()
-    onClose?.()
-  }
+    setOpen(false);
+    form.reset();
+    onClose?.();
+  };
 
-  const isPending = createAsset.isPending || updateAsset.isPending
+  const isPending = createAsset.isPending || updateAsset.isPending;
 
   return (
-    <Dialog open={open} onOpenChange={(v) => { if (!v) handleClose(); else setOpen(true) }}>
+    <Dialog
+      open={open}
+      onOpenChange={(v) => {
+        if (!v) handleClose();
+        else setOpen(true);
+      }}>
       <DialogTrigger asChild>
         {trigger ?? (
           <Button>
@@ -105,7 +114,7 @@ export default function AssetDialog({ clientId, asset, trigger, onClose }: Asset
       </DialogTrigger>
       <DialogContent className="sm:max-w-[480px]">
         <DialogHeader>
-          <DialogTitle>{isEditing ? 'Edit Asset' : 'Add Asset'}</DialogTitle>
+          <DialogTitle>{isEditing ? "Edit Asset" : "Add Asset"}</DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
@@ -124,7 +133,9 @@ export default function AssetDialog({ clientId, asset, trigger, onClose }: Asset
                     </FormControl>
                     <SelectContent>
                       {ASSET_CATEGORIES.map((c) => (
-                        <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
+                        <SelectItem key={c.value} value={c.value}>
+                          {c.label}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -140,7 +151,10 @@ export default function AssetDialog({ clientId, asset, trigger, onClose }: Asset
                 <FormItem>
                   <FormLabel>Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g. Commonwealth Bank savings" {...field} />
+                    <Input
+                      placeholder="e.g. Commonwealth Bank savings"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -181,7 +195,9 @@ export default function AssetDialog({ clientId, asset, trigger, onClose }: Asset
                     </FormControl>
                     <SelectContent>
                       {OWNER_OPTIONS.map((o) => (
-                        <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+                        <SelectItem key={o.value} value={o.value}>
+                          {o.label}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -197,7 +213,11 @@ export default function AssetDialog({ clientId, asset, trigger, onClose }: Asset
                 <FormItem>
                   <FormLabel>Notes</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Optional notes..." rows={2} {...field} />
+                    <Textarea
+                      placeholder="Optional notes..."
+                      rows={2}
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -209,12 +229,16 @@ export default function AssetDialog({ clientId, asset, trigger, onClose }: Asset
                 Cancel
               </Button>
               <Button type="submit" disabled={isPending}>
-                {isPending ? 'Saving...' : isEditing ? 'Save Changes' : 'Add Asset'}
+                {isPending
+                  ? "Saving..."
+                  : isEditing
+                    ? "Save Changes"
+                    : "Add Asset"}
               </Button>
             </DialogFooter>
           </form>
         </Form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

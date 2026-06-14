@@ -1,51 +1,57 @@
-import { createFileRoute, useNavigate, Link } from '@tanstack/react-router'
-import { useQuery } from '@tanstack/react-query'
-import { authClient } from '#/lib/auth-client'
-import { getInvitationDetails } from '#/server/functions/settings'
-import { getSession } from '#/server/functions/auth'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '#/components/ui/card'
-import { Button } from '#/components/ui/button'
-import { Badge } from '#/components/ui/badge'
-import LoadingSpinner from '#/components/loading-spinner'
-import { z } from 'zod'
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { authClient } from "@/lib/auth-client";
+import { getInvitationDetails } from "@/server/functions/settings";
+import { getSession } from "@/server/functions/auth";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import LoadingSpinner from "@/components/loading-spinner";
+import { z } from "zod";
 
-export const Route = createFileRoute('/accept-invitation')({
+export const Route = createFileRoute("/accept-invitation")({
   validateSearch: z.object({ id: z.string().optional() }),
   component: AcceptInvitationPage,
   loader: async ({ context: { queryClient } }) => {
     const session = await queryClient.fetchQuery({
-      queryKey: ['session'],
+      queryKey: ["session"],
       queryFn: () => getSession(),
-    })
-    return { session }
+    });
+    return { session };
   },
-})
+});
 
 function roleBadgeClass(role: string) {
   switch (role) {
-    case 'admin':
-      return 'bg-amber-100 text-amber-800 border-amber-200'
+    case "admin":
+      return "bg-amber-100 text-amber-800 border-amber-200";
     default:
-      return 'bg-gray-100 text-gray-700 border-gray-200'
+      return "bg-gray-100 text-gray-700 border-gray-200";
   }
 }
 
 function AcceptInvitationPage() {
-  const { id } = Route.useSearch()
-  const loaderData = Route.useLoaderData()
-  const navigate = useNavigate()
-  const currentUser = loaderData?.session?.user ?? null
+  const { id } = Route.useSearch();
+  const loaderData = Route.useLoaderData();
+  const navigate = useNavigate();
+  const currentUser = loaderData?.session?.user ?? null;
 
   const {
     data: invitation,
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ['invitation', id],
+    queryKey: ["invitation", id],
     queryFn: () => getInvitationDetails({ data: { invitationId: id! } }),
     enabled: !!id,
     retry: false,
-  })
+  });
 
   if (!id) {
     return (
@@ -62,7 +68,7 @@ function AcceptInvitationPage() {
           </CardContent>
         </Card>
       </div>
-    )
+    );
   }
 
   if (isLoading) {
@@ -70,7 +76,7 @@ function AcceptInvitationPage() {
       <div className="min-h-screen flex items-center justify-center">
         <LoadingSpinner />
       </div>
-    )
+    );
   }
 
   if (isError || !invitation) {
@@ -90,11 +96,12 @@ function AcceptInvitationPage() {
           </CardContent>
         </Card>
       </div>
-    )
+    );
   }
 
   const isExpired =
-    invitation.status !== 'pending' || new Date(invitation.expiresAt) < new Date()
+    invitation.status !== "pending" ||
+    new Date(invitation.expiresAt) < new Date();
 
   if (isExpired) {
     return (
@@ -113,22 +120,22 @@ function AcceptInvitationPage() {
           </CardContent>
         </Card>
       </div>
-    )
+    );
   }
 
-  const orgName = invitation.organizationName ?? 'your team'
-  const inviterName = invitation.inviterName ?? 'Someone'
-  const role = invitation.role ?? 'member'
+  const orgName = invitation.organizationName ?? "your team";
+  const inviterName = invitation.inviterName ?? "Someone";
+  const role = invitation.role ?? "member";
 
   const handleAccept = async () => {
-    await authClient.organization.acceptInvitation({ invitationId: id })
-    navigate({ to: '/dashboard' })
-  }
+    await authClient.organization.acceptInvitation({ invitationId: id });
+    navigate({ to: "/dashboard" });
+  };
 
   const handleDecline = async () => {
-    await authClient.organization.rejectInvitation({ invitationId: id })
-    navigate({ to: '/login' })
-  }
+    await authClient.organization.rejectInvitation({ invitationId: id });
+    navigate({ to: "/login" });
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-muted/30">
@@ -136,7 +143,7 @@ function AcceptInvitationPage() {
         <CardHeader className="text-center">
           <CardTitle>You've been invited!</CardTitle>
           <CardDescription>
-            <strong>{inviterName}</strong> has invited you to join{' '}
+            <strong>{inviterName}</strong> has invited you to join{" "}
             <strong>{orgName}</strong>
           </CardDescription>
         </CardHeader>
@@ -144,7 +151,9 @@ function AcceptInvitationPage() {
           <div className="flex items-center justify-between rounded-lg border bg-muted/30 p-4">
             <div>
               <p className="text-sm font-medium">{orgName}</p>
-              <p className="text-xs text-muted-foreground">Invited by {inviterName}</p>
+              <p className="text-xs text-muted-foreground">
+                Invited by {inviterName}
+              </p>
             </div>
             <Badge variant="outline" className={roleBadgeClass(role)}>
               {role}
@@ -177,5 +186,5 @@ function AcceptInvitationPage() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

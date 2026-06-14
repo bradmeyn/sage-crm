@@ -1,6 +1,6 @@
-import { useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Dialog,
   DialogContent,
@@ -8,17 +8,17 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '#/components/ui/dialog'
-import { Button } from '#/components/ui/button'
-import { Input } from '#/components/ui/input'
-import { Textarea } from '#/components/ui/textarea'
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '#/components/ui/select'
+} from "@/components/ui/select";
 import {
   Form,
   FormControl,
@@ -26,23 +26,23 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '#/components/ui/form'
-import { Plus } from 'lucide-react'
-import { toast } from 'sonner'
+} from "@/components/ui/form";
+import { Plus } from "lucide-react";
+import { toast } from "sonner";
 import {
   expenseFormSchema,
   type ExpenseFormValues,
   EXPENSE_CATEGORIES,
   FREQUENCIES,
-} from '../schemas'
-import { useCreateExpense, useUpdateExpense } from '../hooks'
-import type { ClientExpense } from '#/db/schema'
+} from "../schemas";
+import { useCreateExpense, useUpdateExpense } from "../hooks";
+import type { ClientExpense } from "@/db/schema";
 
 interface ExpenseDialogProps {
-  clientId: string
-  expense?: ClientExpense
-  trigger?: React.ReactNode
-  onClose?: () => void
+  clientId: string;
+  expense?: ClientExpense;
+  trigger?: React.ReactNode;
+  onClose?: () => void;
 }
 
 export default function ExpenseDialog({
@@ -51,21 +51,21 @@ export default function ExpenseDialog({
   trigger,
   onClose,
 }: ExpenseDialogProps) {
-  const [open, setOpen] = useState(false)
-  const createExpense = useCreateExpense()
-  const updateExpense = useUpdateExpense()
-  const isEditing = !!expense
+  const [open, setOpen] = useState(false);
+  const createExpense = useCreateExpense();
+  const updateExpense = useUpdateExpense();
+  const isEditing = !!expense;
 
   const form = useForm<ExpenseFormValues>({
     resolver: zodResolver(expenseFormSchema),
     defaultValues: {
-      category: expense?.category ?? 'OTHER',
-      name: expense?.name ?? '',
+      category: expense?.category ?? "OTHER",
+      name: expense?.name ?? "",
       amount: expense?.amount ?? 0,
-      frequency: expense?.frequency ?? 'MONTHLY',
-      notes: expense?.notes ?? '',
+      frequency: expense?.frequency ?? "MONTHLY",
+      notes: expense?.notes ?? "",
     },
-  })
+  });
 
   const onSubmit = (data: ExpenseFormValues) => {
     if (isEditing) {
@@ -74,37 +74,39 @@ export default function ExpenseDialog({
         { ...data, clientId, expenseId: expense.id } as any,
         {
           onSuccess: () => {
-            toast.success('Expense updated')
-            handleClose()
+            toast.success("Expense updated");
+            handleClose();
           },
           onError: (err: Error) => toast.error(`Error: ${err.message}`),
         },
-      )
+      );
     } else {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      createExpense.mutate(
-        { ...data, clientId } as any,
-        {
-          onSuccess: () => {
-            toast.success('Expense added')
-            handleClose()
-          },
-          onError: (err: Error) => toast.error(`Error: ${err.message}`),
+      createExpense.mutate({ ...data, clientId } as any, {
+        onSuccess: () => {
+          toast.success("Expense added");
+          handleClose();
         },
-      )
+        onError: (err: Error) => toast.error(`Error: ${err.message}`),
+      });
     }
-  }
+  };
 
   const handleClose = () => {
-    setOpen(false)
-    form.reset()
-    onClose?.()
-  }
+    setOpen(false);
+    form.reset();
+    onClose?.();
+  };
 
-  const isPending = createExpense.isPending || updateExpense.isPending
+  const isPending = createExpense.isPending || updateExpense.isPending;
 
   return (
-    <Dialog open={open} onOpenChange={(v) => { if (!v) handleClose(); else setOpen(true) }}>
+    <Dialog
+      open={open}
+      onOpenChange={(v) => {
+        if (!v) handleClose();
+        else setOpen(true);
+      }}>
       <DialogTrigger asChild>
         {trigger ?? (
           <Button>
@@ -115,7 +117,9 @@ export default function ExpenseDialog({
       </DialogTrigger>
       <DialogContent className="sm:max-w-[480px]">
         <DialogHeader>
-          <DialogTitle>{isEditing ? 'Edit Expense' : 'Add Expense'}</DialogTitle>
+          <DialogTitle>
+            {isEditing ? "Edit Expense" : "Add Expense"}
+          </DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
@@ -134,7 +138,9 @@ export default function ExpenseDialog({
                     </FormControl>
                     <SelectContent>
                       {EXPENSE_CATEGORIES.map((c) => (
-                        <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
+                        <SelectItem key={c.value} value={c.value}>
+                          {c.label}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -192,7 +198,9 @@ export default function ExpenseDialog({
                       </FormControl>
                       <SelectContent>
                         {FREQUENCIES.map((f) => (
-                          <SelectItem key={f.value} value={f.value}>{f.label}</SelectItem>
+                          <SelectItem key={f.value} value={f.value}>
+                            {f.label}
+                          </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -209,7 +217,11 @@ export default function ExpenseDialog({
                 <FormItem>
                   <FormLabel>Notes</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Optional notes..." rows={2} {...field} />
+                    <Textarea
+                      placeholder="Optional notes..."
+                      rows={2}
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -221,12 +233,16 @@ export default function ExpenseDialog({
                 Cancel
               </Button>
               <Button type="submit" disabled={isPending}>
-                {isPending ? 'Saving...' : isEditing ? 'Save Changes' : 'Add Expense'}
+                {isPending
+                  ? "Saving..."
+                  : isEditing
+                    ? "Save Changes"
+                    : "Add Expense"}
               </Button>
             </DialogFooter>
           </form>
         </Form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

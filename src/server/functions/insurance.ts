@@ -1,78 +1,78 @@
-import { createServerFn } from '@tanstack/react-start'
-import { authMiddleware } from '#/server/middleware'
-import { db } from '#/db/index'
-import { client, clientInsurance } from '#/db/schema'
-import { eq, and } from 'drizzle-orm'
-import { z } from 'zod'
+import { createServerFn } from "@tanstack/react-start";
+import { authMiddleware } from "@/server/middleware";
+import { db } from "@/db/index";
+import { client, clientInsurance } from "@/db/schema";
+import { eq, and } from "drizzle-orm";
+import { z } from "zod";
 
 async function verifyClientOwnership(clientId: string, orgId: string) {
   const c = await db.query.client.findFirst({
     where: and(eq(client.id, clientId), eq(client.organizationId, orgId)),
-  })
-  if (!c) throw new Error('Client not found or unauthorized')
-  return c
+  });
+  if (!c) throw new Error("Client not found or unauthorized");
+  return c;
 }
 
 // ─── Schemas ──────────────────────────────────────────────────────────────────
 
 const insuranceCategories = [
-  'LIFE',
-  'TPD',
-  'TRAUMA',
-  'INCOME_PROTECTION',
-  'HEALTH',
-  'HOME_CONTENTS',
-  'VEHICLE',
-  'BUSINESS',
-  'OTHER',
-] as const
+  "LIFE",
+  "TPD",
+  "TRAUMA",
+  "INCOME_PROTECTION",
+  "HEALTH",
+  "HOME_CONTENTS",
+  "VEHICLE",
+  "BUSINESS",
+  "OTHER",
+] as const;
 
-const premiumFrequencies = ['MONTHLY', 'QUARTERLY', 'ANNUALLY'] as const
-const ownerValues = ['CLIENT', 'PARTNER', 'JOINT'] as const
-const insuranceStatuses = ['ACTIVE', 'CANCELLED', 'LAPSED', 'PENDING'] as const
+const premiumFrequencies = ["MONTHLY", "QUARTERLY", "ANNUALLY"] as const;
+const ownerValues = ["CLIENT", "PARTNER", "JOINT"] as const;
+const insuranceStatuses = ["ACTIVE", "CANCELLED", "LAPSED", "PENDING"] as const;
 
 const insuranceInputSchema = z.object({
   clientId: z.string(),
-  category: z.enum(insuranceCategories).default('OTHER'),
+  category: z.enum(insuranceCategories).default("OTHER"),
   insurer: z.string().min(1).max(200),
   policyNumber: z.string().optional(),
   coverAmount: z.number().int().min(0).optional(),
   premium: z.number().int().min(0).optional(),
-  premiumFrequency: z.enum(premiumFrequencies).default('MONTHLY'),
-  owner: z.enum(ownerValues).default('CLIENT'),
-  status: z.enum(insuranceStatuses).default('ACTIVE'),
+  premiumFrequency: z.enum(premiumFrequencies).default("MONTHLY"),
+  owner: z.enum(ownerValues).default("CLIENT"),
+  status: z.enum(insuranceStatuses).default("ACTIVE"),
   startDate: z.string().optional(),
   reviewDate: z.string().optional(),
   notes: z.string().optional(),
-})
+});
 
 const updateInsuranceSchema = insuranceInputSchema.extend({
   insuranceId: z.string(),
-})
+});
 
-const clientIdSchema = z.object({ clientId: z.string() })
+const clientIdSchema = z.object({ clientId: z.string() });
 
 // ─── Handlers ─────────────────────────────────────────────────────────────────
 
-export const getInsurance = createServerFn({ method: 'GET' })
+export const getInsurance = createServerFn({ method: "GET" })
   .middleware([authMiddleware])
-  .inputValidator(clientIdSchema)
+  .validator(clientIdSchema)
   .handler(async ({ context, data }) => {
-    const orgId = context.session.session.activeOrganizationId!
-    await verifyClientOwnership(data.clientId, orgId)
+    const orgId = context.session.session.activeOrganizationId!;
+    await verifyClientOwnership(data.clientId, orgId);
     return db.query.clientInsurance.findMany({
       where: eq(clientInsurance.clientId, data.clientId),
       orderBy: (i, { asc }) => [asc(i.status), asc(i.category)],
-    })
-  })
+    });
+  });
 
-export const createInsurance = createServerFn({ method: 'POST' })
+export const createInsurance = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
-  .inputValidator(insuranceInputSchema)
+  .validator(insuranceInputSchema)
   .handler(async ({ context, data }) => {
-    const { session } = context
-    const orgId = session.session.activeOrganizationId!
-    await verifyClientOwnership(data.clientId, orgId)
+    const { session } = context;
+    const orgId = session.session.activeOrganizationId!;
+    await verifyClientOwnership(data.clientId, orgId);
     const [policy] = await db
       .insert(clientInsurance)
       .values({
@@ -91,18 +91,18 @@ export const createInsurance = createServerFn({ method: 'POST' })
         createdById: session.user.id,
         updatedById: session.user.id,
       })
-      .returning()
-    return policy
-  })
+      .returning();
+    return policy;
+  });
 
-export const updateInsurance = createServerFn({ method: 'POST' })
+export const updateInsurance = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
-  .inputValidator(updateInsuranceSchema)
+  .validator(updateInsuranceSchema)
   .handler(async ({ context, data }) => {
-    const { session } = context
-    const orgId = session.session.activeOrganizationId!
-    await verifyClientOwnership(data.clientId, orgId)
-    const { insuranceId, clientId: _, ...fields } = data
+    const { session } = context;
+    const orgId = session.session.activeOrganizationId!;
+    await verifyClientOwnership(data.clientId, orgId);
+    const { insuranceId, clientId: _, ...fields } = data;
     const [updated] = await db
       .update(clientInsurance)
       .set({
@@ -121,19 +121,22 @@ export const updateInsurance = createServerFn({ method: 'POST' })
         updatedAt: new Date(),
       })
       .where(
-        and(eq(clientInsurance.id, insuranceId), eq(clientInsurance.clientId, data.clientId)),
+        and(
+          eq(clientInsurance.id, insuranceId),
+          eq(clientInsurance.clientId, data.clientId),
+        ),
       )
-      .returning()
-    if (!updated) throw new Error('Insurance policy not found')
-    return updated
-  })
+      .returning();
+    if (!updated) throw new Error("Insurance policy not found");
+    return updated;
+  });
 
-export const deleteInsurance = createServerFn({ method: 'POST' })
+export const deleteInsurance = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
-  .inputValidator(z.object({ insuranceId: z.string(), clientId: z.string() }))
+  .validator(z.object({ insuranceId: z.string(), clientId: z.string() }))
   .handler(async ({ context, data }) => {
-    const orgId = context.session.session.activeOrganizationId!
-    await verifyClientOwnership(data.clientId, orgId)
+    const orgId = context.session.session.activeOrganizationId!;
+    await verifyClientOwnership(data.clientId, orgId);
     await db
       .delete(clientInsurance)
       .where(
@@ -141,6 +144,6 @@ export const deleteInsurance = createServerFn({ method: 'POST' })
           eq(clientInsurance.id, data.insuranceId),
           eq(clientInsurance.clientId, data.clientId),
         ),
-      )
-    return { success: true }
-  })
+      );
+    return { success: true };
+  });

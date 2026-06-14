@@ -1,18 +1,22 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { useSuspenseQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { createFileRoute } from "@tanstack/react-router";
+import {
+  useSuspenseQuery,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
 import {
   getOrgDetails,
   inviteMember,
   cancelInvitation,
   removeMember,
   updateMemberRole,
-} from '#/server/functions/settings'
-import { getTemplates } from '#/server/functions/job-templates'
-import { templateKeys } from '#/features/jobs/templates/hooks'
-import TemplateManager from '#/features/jobs/templates/components/template-manager'
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '#/components/ui/tabs'
-import { Button } from '#/components/ui/button'
-import { Badge } from '#/components/ui/badge'
+} from "@/server/functions/settings";
+import { getTemplates } from "@/server/functions/job-templates";
+import { templateKeys } from "@/features/jobs/templates/hooks";
+import TemplateManager from "@/features/jobs/templates/components/template-manager";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
@@ -20,34 +24,41 @@ import {
   DialogTitle,
   DialogTrigger,
   DialogFooter,
-} from '#/components/ui/dialog'
-import { Input } from '#/components/ui/input'
-import { Label } from '#/components/ui/label'
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '#/components/ui/select'
+} from "@/components/ui/select";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
   DropdownMenuSeparator,
-} from '#/components/ui/dropdown-menu'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '#/components/ui/table'
-import { toast } from 'sonner'
-import { MoreHorizontal, UserPlus } from 'lucide-react'
-import { useState } from 'react'
+} from "@/components/ui/dropdown-menu";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { toast } from "sonner";
+import { MoreHorizontal, UserPlus } from "lucide-react";
+import { useState } from "react";
 
 const orgKeys = {
-  all: ['org-details'] as const,
+  all: ["org-details"] as const,
   detail: () => [...orgKeys.all] as const,
-}
+};
 
-export const Route = createFileRoute('/(app)/_layout/settings')({
+export const Route = createFileRoute("/(app)/_layout/settings")({
   component: SettingsPage,
   loader: async ({ context: { queryClient } }) => {
     await Promise.all([
@@ -59,90 +70,102 @@ export const Route = createFileRoute('/(app)/_layout/settings')({
         queryKey: templateKeys.list(),
         queryFn: () => getTemplates(),
       }),
-    ])
+    ]);
   },
-})
+});
 
 function roleBadgeVariant(role: string) {
   switch (role) {
-    case 'owner':
-      return 'default'
-    case 'admin':
-      return 'secondary'
+    case "owner":
+      return "default";
+    case "admin":
+      return "secondary";
     default:
-      return 'outline'
+      return "outline";
   }
 }
 
 function roleBadgeClass(role: string) {
   switch (role) {
-    case 'owner':
-      return 'bg-blue-100 text-blue-800 border-blue-200'
-    case 'admin':
-      return 'bg-amber-100 text-amber-800 border-amber-200'
+    case "owner":
+      return "bg-blue-100 text-blue-800 border-blue-200";
+    case "admin":
+      return "bg-amber-100 text-amber-800 border-amber-200";
     default:
-      return 'bg-gray-100 text-gray-700 border-gray-200'
+      return "bg-gray-100 text-gray-700 border-gray-200";
   }
 }
 
 function formatDate(date: string | Date) {
-  return new Intl.DateTimeFormat('en-AU', { dateStyle: 'medium' }).format(new Date(date))
+  return new Intl.DateTimeFormat("en-AU", { dateStyle: "medium" }).format(
+    new Date(date),
+  );
 }
 
 function getInitials(name: string) {
   return name
-    .split(' ')
+    .split(" ")
     .map((n) => n[0])
-    .join('')
+    .join("")
     .toUpperCase()
-    .slice(0, 2)
+    .slice(0, 2);
 }
 
 function SettingsPage() {
-  const { session } = Route.useRouteContext()
-  const currentUserId = session.user.id
-  const queryClient = useQueryClient()
+  const { session } = Route.useRouteContext();
+  const currentUserId = session.user.id;
+  const queryClient = useQueryClient();
 
   const { data: org } = useSuspenseQuery({
     queryKey: orgKeys.detail(),
     queryFn: () => getOrgDetails(),
-  })
+  });
 
   const removeMemberMutation = useMutation({
     mutationFn: (memberId: string) => removeMember({ data: { memberId } }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: orgKeys.all })
-      toast.success('Member removed')
+      queryClient.invalidateQueries({ queryKey: orgKeys.all });
+      toast.success("Member removed");
     },
-    onError: () => toast.error('Failed to remove member'),
-  })
+    onError: () => toast.error("Failed to remove member"),
+  });
 
   const updateRoleMutation = useMutation({
-    mutationFn: ({ memberId, role }: { memberId: string; role: 'admin' | 'member' }) =>
-      updateMemberRole({ data: { memberId, role } }),
+    mutationFn: ({
+      memberId,
+      role,
+    }: {
+      memberId: string;
+      role: "admin" | "member";
+    }) => updateMemberRole({ data: { memberId, role } }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: orgKeys.all })
-      toast.success('Role updated')
+      queryClient.invalidateQueries({ queryKey: orgKeys.all });
+      toast.success("Role updated");
     },
-    onError: () => toast.error('Failed to update role'),
-  })
+    onError: () => toast.error("Failed to update role"),
+  });
 
   const cancelInviteMutation = useMutation({
-    mutationFn: (invitationId: string) => cancelInvitation({ data: { invitationId } }),
+    mutationFn: (invitationId: string) =>
+      cancelInvitation({ data: { invitationId } }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: orgKeys.all })
-      toast.success('Invitation cancelled')
+      queryClient.invalidateQueries({ queryKey: orgKeys.all });
+      toast.success("Invitation cancelled");
     },
-    onError: () => toast.error('Failed to cancel invitation'),
-  })
+    onError: () => toast.error("Failed to cancel invitation"),
+  });
 
-  const pendingInvitations = (org?.invitations ?? []).filter((inv) => inv.status === 'pending')
+  const pendingInvitations = (org?.invitations ?? []).filter(
+    (inv) => inv.status === "pending",
+  );
 
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-4xl font-bold">Settings</h1>
-        <p className="text-muted-foreground mt-1">Manage your team and invitations</p>
+        <h1 className="heading-primary">Settings</h1>
+        <p className="text-muted-foreground mt-1">
+          Manage your team and invitations
+        </p>
       </div>
 
       <Tabs defaultValue="team">
@@ -172,8 +195,8 @@ function SettingsPage() {
               </TableHeader>
               <TableBody>
                 {(org?.members ?? []).map((member) => {
-                  const isSelf = member.userId === currentUserId
-                  const isOwner = member.role === 'owner'
+                  const isSelf = member.userId === currentUserId;
+                  const isOwner = member.role === "owner";
                   return (
                     <TableRow key={member.id}>
                       <TableCell>
@@ -185,18 +208,21 @@ function SettingsPage() {
                             <p className="font-medium text-sm">
                               {member.user.name}
                               {isSelf && (
-                                <span className="ml-1.5 text-xs text-muted-foreground">(you)</span>
+                                <span className="ml-1.5 text-xs text-muted-foreground">
+                                  (you)
+                                </span>
                               )}
                             </p>
-                            <p className="text-xs text-muted-foreground">{member.user.email}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {member.user.email}
+                            </p>
                           </div>
                         </div>
                       </TableCell>
                       <TableCell>
                         <Badge
                           variant={roleBadgeVariant(member.role)}
-                          className={roleBadgeClass(member.role)}
-                        >
+                          className={roleBadgeClass(member.role)}>
                           {member.role}
                         </Badge>
                       </TableCell>
@@ -207,7 +233,10 @@ function SettingsPage() {
                         {!isOwner && (
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon" className="h-8 w-8">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8">
                                 <MoreHorizontal size={16} />
                               </Button>
                             </DropdownMenuTrigger>
@@ -216,19 +245,23 @@ function SettingsPage() {
                                 onClick={() =>
                                   updateRoleMutation.mutate({
                                     memberId: member.id,
-                                    role: member.role === 'admin' ? 'member' : 'admin',
+                                    role:
+                                      member.role === "admin"
+                                        ? "member"
+                                        : "admin",
                                   })
-                                }
-                              >
-                                Change to {member.role === 'admin' ? 'member' : 'admin'}
+                                }>
+                                Change to{" "}
+                                {member.role === "admin" ? "member" : "admin"}
                               </DropdownMenuItem>
                               {!isSelf && (
                                 <>
                                   <DropdownMenuSeparator />
                                   <DropdownMenuItem
                                     className="text-destructive focus:text-destructive"
-                                    onClick={() => removeMemberMutation.mutate(member.id)}
-                                  >
+                                    onClick={() =>
+                                      removeMemberMutation.mutate(member.id)
+                                    }>
                                     Remove member
                                   </DropdownMenuItem>
                                 </>
@@ -238,7 +271,7 @@ function SettingsPage() {
                         )}
                       </TableCell>
                     </TableRow>
-                  )
+                  );
                 })}
               </TableBody>
             </Table>
@@ -247,7 +280,11 @@ function SettingsPage() {
 
         <TabsContent value="invitations">
           <div className="flex justify-end mb-4">
-            <InviteMemberDialog onSuccess={() => queryClient.invalidateQueries({ queryKey: orgKeys.all })} />
+            <InviteMemberDialog
+              onSuccess={() =>
+                queryClient.invalidateQueries({ queryKey: orgKeys.all })
+              }
+            />
           </div>
 
           {pendingInvitations.length === 0 ? (
@@ -273,8 +310,7 @@ function SettingsPage() {
                       <TableCell>
                         <Badge
                           variant={roleBadgeVariant(inv.role)}
-                          className={roleBadgeClass(inv.role)}
-                        >
+                          className={roleBadgeClass(inv.role)}>
                           {inv.role}
                         </Badge>
                       </TableCell>
@@ -282,7 +318,9 @@ function SettingsPage() {
                         {formatDate(inv.expiresAt)}
                       </TableCell>
                       <TableCell>
-                        <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">
+                        <Badge
+                          variant="outline"
+                          className="bg-yellow-50 text-yellow-700 border-yellow-200">
                           pending
                         </Badge>
                       </TableCell>
@@ -292,8 +330,7 @@ function SettingsPage() {
                           size="sm"
                           className="text-muted-foreground hover:text-destructive"
                           onClick={() => cancelInviteMutation.mutate(inv.id)}
-                          disabled={cancelInviteMutation.isPending}
-                        >
+                          disabled={cancelInviteMutation.isPending}>
                           Cancel
                         </Button>
                       </TableCell>
@@ -310,27 +347,27 @@ function SettingsPage() {
         </TabsContent>
       </Tabs>
     </div>
-  )
+  );
 }
 
 function InviteMemberDialog({ onSuccess }: { onSuccess: () => void }) {
-  const [open, setOpen] = useState(false)
-  const [email, setEmail] = useState('')
-  const [role, setRole] = useState<'admin' | 'member'>('member')
+  const [open, setOpen] = useState(false);
+  const [email, setEmail] = useState("");
+  const [role, setRole] = useState<"admin" | "member">("member");
 
   const inviteMutation = useMutation({
     mutationFn: () => inviteMember({ data: { email, role } }),
     onSuccess: () => {
-      toast.success('Invitation sent')
-      setEmail('')
-      setRole('member')
-      setOpen(false)
-      onSuccess()
+      toast.success("Invitation sent");
+      setEmail("");
+      setRole("member");
+      setOpen(false);
+      onSuccess();
     },
     onError: (err: Error) => {
-      toast.error(err.message || 'Failed to send invitation')
+      toast.error(err.message || "Failed to send invitation");
     },
-  })
+  });
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -357,7 +394,9 @@ function InviteMemberDialog({ onSuccess }: { onSuccess: () => void }) {
           </div>
           <div className="flex flex-col gap-2">
             <Label htmlFor="invite-role">Role</Label>
-            <Select value={role} onValueChange={(v) => setRole(v as 'admin' | 'member')}>
+            <Select
+              value={role}
+              onValueChange={(v) => setRole(v as "admin" | "member")}>
               <SelectTrigger id="invite-role">
                 <SelectValue />
               </SelectTrigger>
@@ -371,12 +410,11 @@ function InviteMemberDialog({ onSuccess }: { onSuccess: () => void }) {
         <DialogFooter>
           <Button
             onClick={() => inviteMutation.mutate()}
-            disabled={!email || inviteMutation.isPending}
-          >
-            {inviteMutation.isPending ? 'Sending...' : 'Send invitation'}
+            disabled={!email || inviteMutation.isPending}>
+            {inviteMutation.isPending ? "Sending..." : "Send invitation"}
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

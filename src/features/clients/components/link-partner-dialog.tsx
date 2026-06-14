@@ -1,6 +1,6 @@
-import { useState, useMemo } from 'react'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { useState, useMemo } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Dialog,
   DialogContent,
@@ -8,8 +8,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '#/components/ui/dialog'
-import { Button } from '#/components/ui/button'
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import {
   Command,
   CommandEmpty,
@@ -17,14 +17,14 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from '#/components/ui/command'
+} from "@/components/ui/command";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '#/components/ui/select'
+} from "@/components/ui/select";
 import {
   Form,
   FormControl,
@@ -32,32 +32,32 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '#/components/ui/form'
-import { Check, UserPlus } from 'lucide-react'
-import { toast } from 'sonner'
-import { useClients, useLinkPartner } from '#/features/clients/hooks'
+} from "@/components/ui/form";
+import { Check, UserPlus } from "lucide-react";
+import { toast } from "sonner";
+import { useClients, useLinkPartner } from "@/features/clients/hooks";
 import {
   partnerLinkSchema,
   type PartnerLinkFormValues,
   PARTNER_RELATIONSHIPS,
-} from '#/features/clients/schemas'
+} from "@/features/clients/schemas";
 
 interface Props {
-  clientId: string
+  clientId: string;
 }
 
 export default function LinkPartnerDialog({ clientId }: Props) {
-  const [open, setOpen] = useState(false)
-  const [search, setSearch] = useState('')
-  const { data: allClients = [] } = useClients()
-  const linkPartner = useLinkPartner()
+  const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState("");
+  const { data: allClients = [] } = useClients();
+  const linkPartner = useLinkPartner();
 
   const form = useForm<PartnerLinkFormValues>({
     resolver: zodResolver(partnerLinkSchema),
-    defaultValues: { relationship: 'SPOUSE', partnerId: '' },
-  })
+    defaultValues: { relationship: "SPOUSE", partnerId: "" },
+  });
 
-  const selectedPartnerId = form.watch('partnerId')
+  const selectedPartnerId = form.watch("partnerId");
 
   // Exclude self and already-partnered clients
   const eligible = useMemo(
@@ -66,37 +66,45 @@ export default function LinkPartnerDialog({ clientId }: Props) {
         (c) =>
           c.id !== clientId &&
           !c.partnerId &&
-          (search === '' ||
-            `${c.firstName} ${c.lastName}`.toLowerCase().includes(search.toLowerCase()) ||
-            (c.preferredName ?? '').toLowerCase().includes(search.toLowerCase())),
+          (search === "" ||
+            `${c.firstName} ${c.lastName}`
+              .toLowerCase()
+              .includes(search.toLowerCase()) ||
+            (c.preferredName ?? "")
+              .toLowerCase()
+              .includes(search.toLowerCase())),
       ),
     [allClients, clientId, search],
-  )
+  );
 
-  const selectedClient = allClients.find((c) => c.id === selectedPartnerId)
+  const selectedClient = allClients.find((c) => c.id === selectedPartnerId);
 
   const onSubmit = (values: PartnerLinkFormValues) => {
     linkPartner.mutate(
-      { clientId, partnerId: values.partnerId, relationship: values.relationship },
+      {
+        clientId,
+        partnerId: values.partnerId,
+        relationship: values.relationship,
+      },
       {
         onSuccess: () => {
-          toast.success('Partner linked')
-          setOpen(false)
-          form.reset()
-          setSearch('')
+          toast.success("Partner linked");
+          setOpen(false);
+          form.reset();
+          setSearch("");
         },
         onError: (err: Error) => toast.error(err.message),
       },
-    )
-  }
+    );
+  };
 
   const handleOpenChange = (v: boolean) => {
-    setOpen(v)
+    setOpen(v);
     if (!v) {
-      form.reset()
-      setSearch('')
+      form.reset();
+      setSearch("");
     }
-  }
+  };
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -133,14 +141,14 @@ export default function LinkPartnerDialog({ clientId }: Props) {
                               <CommandItem
                                 key={c.id}
                                 value={c.id}
-                                onSelect={() => field.onChange(c.id)}
-                              >
+                                onSelect={() => field.onChange(c.id)}>
                                 <Check
-                                  className={`mr-2 h-4 w-4 ${field.value === c.id ? 'opacity-100' : 'opacity-0'}`}
+                                  className={`mr-2 h-4 w-4 ${field.value === c.id ? "opacity-100" : "opacity-0"}`}
                                 />
                                 {c.firstName}
-                                {c.preferredName ? ` (${c.preferredName})` : ''}
-                                {' '}
+                                {c.preferredName
+                                  ? ` (${c.preferredName})`
+                                  : ""}{" "}
                                 {c.lastName}
                               </CommandItem>
                             ))}
@@ -151,7 +159,8 @@ export default function LinkPartnerDialog({ clientId }: Props) {
                   </FormControl>
                   {selectedClient && (
                     <p className="text-xs text-muted-foreground">
-                      Selected: {selectedClient.firstName} {selectedClient.lastName}
+                      Selected: {selectedClient.firstName}{" "}
+                      {selectedClient.lastName}
                     </p>
                   )}
                   <FormMessage />
@@ -183,16 +192,21 @@ export default function LinkPartnerDialog({ clientId }: Props) {
               )}
             />
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setOpen(false)}>
                 Cancel
               </Button>
-              <Button type="submit" disabled={linkPartner.isPending || !selectedPartnerId}>
-                {linkPartner.isPending ? 'Linking…' : 'Link Partner'}
+              <Button
+                type="submit"
+                disabled={linkPartner.isPending || !selectedPartnerId}>
+                {linkPartner.isPending ? "Linking…" : "Link Partner"}
               </Button>
             </DialogFooter>
           </form>
         </Form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

@@ -9,28 +9,39 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as FactFindRouteImport } from './routes/fact-find'
 import { Route as AcceptInvitationRouteImport } from './routes/accept-invitation'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as authRegisterRouteImport } from './routes/(auth)/register'
 import { Route as authLoginRouteImport } from './routes/(auth)/login'
 import { Route as appLayoutRouteImport } from './routes/(app)/_layout'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as appLayoutTasksRouteImport } from './routes/(app)/_layout/tasks'
 import { Route as appLayoutSettingsRouteImport } from './routes/(app)/_layout/settings'
 import { Route as appLayoutDashboardRouteImport } from './routes/(app)/_layout/dashboard'
 import { Route as appLayoutJobsIndexRouteImport } from './routes/(app)/_layout/jobs/index'
 import { Route as appLayoutClientsIndexRouteImport } from './routes/(app)/_layout/clients/index'
+import { Route as appLayoutSoaSoaIdRouteImport } from './routes/(app)/_layout/soa.$soaId'
 import { Route as appLayoutJobsJobIdRouteImport } from './routes/(app)/_layout/jobs/$jobId'
+import { Route as appLayoutFactFindClientIdRouteImport } from './routes/(app)/_layout/fact-find.$clientId'
 import { Route as appLayoutClientsClientIdRouteImport } from './routes/(app)/_layout/clients/$clientId'
 import { Route as appLayoutClientsClientIdIndexRouteImport } from './routes/(app)/_layout/clients/$clientId/index'
+import { Route as appLayoutClientsClientIdSoaIndexRouteImport } from './routes/(app)/_layout/clients/$clientId/soa/index'
 import { Route as appLayoutClientsClientIdServiceAgreementsIndexRouteImport } from './routes/(app)/_layout/clients/$clientId/service-agreements/index'
 import { Route as appLayoutClientsClientIdJobsIndexRouteImport } from './routes/(app)/_layout/clients/$clientId/jobs/index'
 import { Route as appLayoutClientsClientIdInsuranceIndexRouteImport } from './routes/(app)/_layout/clients/$clientId/insurance/index'
 import { Route as appLayoutClientsClientIdGoalsIndexRouteImport } from './routes/(app)/_layout/clients/$clientId/goals/index'
 import { Route as appLayoutClientsClientIdFileNotesIndexRouteImport } from './routes/(app)/_layout/clients/$clientId/file-notes/index'
+import { Route as appLayoutClientsClientIdFactFindIndexRouteImport } from './routes/(app)/_layout/clients/$clientId/fact-find/index'
 import { Route as appLayoutClientsClientIdDocumentsIndexRouteImport } from './routes/(app)/_layout/clients/$clientId/documents/index'
 import { Route as appLayoutClientsClientIdCashflowIndexRouteImport } from './routes/(app)/_layout/clients/$clientId/cashflow/index'
 import { Route as appLayoutClientsClientIdBalanceSheetIndexRouteImport } from './routes/(app)/_layout/clients/$clientId/balance-sheet/index'
 
+const FactFindRoute = FactFindRouteImport.update({
+  id: '/fact-find',
+  path: '/fact-find',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AcceptInvitationRoute = AcceptInvitationRouteImport.update({
   id: '/accept-invitation',
   path: '/accept-invitation',
@@ -60,6 +71,11 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const appLayoutTasksRoute = appLayoutTasksRouteImport.update({
+  id: '/tasks',
+  path: '/tasks',
+  getParentRoute: () => appLayoutRoute,
+} as any)
 const appLayoutSettingsRoute = appLayoutSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
@@ -80,11 +96,22 @@ const appLayoutClientsIndexRoute = appLayoutClientsIndexRouteImport.update({
   path: '/clients/',
   getParentRoute: () => appLayoutRoute,
 } as any)
+const appLayoutSoaSoaIdRoute = appLayoutSoaSoaIdRouteImport.update({
+  id: '/soa/$soaId',
+  path: '/soa/$soaId',
+  getParentRoute: () => appLayoutRoute,
+} as any)
 const appLayoutJobsJobIdRoute = appLayoutJobsJobIdRouteImport.update({
   id: '/jobs/$jobId',
   path: '/jobs/$jobId',
   getParentRoute: () => appLayoutRoute,
 } as any)
+const appLayoutFactFindClientIdRoute =
+  appLayoutFactFindClientIdRouteImport.update({
+    id: '/fact-find/$clientId',
+    path: '/fact-find/$clientId',
+    getParentRoute: () => appLayoutRoute,
+  } as any)
 const appLayoutClientsClientIdRoute =
   appLayoutClientsClientIdRouteImport.update({
     id: '/clients/$clientId',
@@ -95,6 +122,12 @@ const appLayoutClientsClientIdIndexRoute =
   appLayoutClientsClientIdIndexRouteImport.update({
     id: '/',
     path: '/',
+    getParentRoute: () => appLayoutClientsClientIdRoute,
+  } as any)
+const appLayoutClientsClientIdSoaIndexRoute =
+  appLayoutClientsClientIdSoaIndexRouteImport.update({
+    id: '/soa/',
+    path: '/soa/',
     getParentRoute: () => appLayoutClientsClientIdRoute,
   } as any)
 const appLayoutClientsClientIdServiceAgreementsIndexRoute =
@@ -127,6 +160,12 @@ const appLayoutClientsClientIdFileNotesIndexRoute =
     path: '/file-notes/',
     getParentRoute: () => appLayoutClientsClientIdRoute,
   } as any)
+const appLayoutClientsClientIdFactFindIndexRoute =
+  appLayoutClientsClientIdFactFindIndexRouteImport.update({
+    id: '/fact-find/',
+    path: '/fact-find/',
+    getParentRoute: () => appLayoutClientsClientIdRoute,
+  } as any)
 const appLayoutClientsClientIdDocumentsIndexRoute =
   appLayoutClientsClientIdDocumentsIndexRouteImport.update({
     id: '/documents/',
@@ -149,142 +188,179 @@ const appLayoutClientsClientIdBalanceSheetIndexRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/accept-invitation': typeof AcceptInvitationRoute
+  '/fact-find': typeof FactFindRoute
   '/login': typeof authLoginRoute
   '/register': typeof authRegisterRoute
   '/dashboard': typeof appLayoutDashboardRoute
   '/settings': typeof appLayoutSettingsRoute
+  '/tasks': typeof appLayoutTasksRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/clients/$clientId': typeof appLayoutClientsClientIdRouteWithChildren
+  '/fact-find/$clientId': typeof appLayoutFactFindClientIdRoute
   '/jobs/$jobId': typeof appLayoutJobsJobIdRoute
+  '/soa/$soaId': typeof appLayoutSoaSoaIdRoute
   '/clients/': typeof appLayoutClientsIndexRoute
   '/jobs/': typeof appLayoutJobsIndexRoute
   '/clients/$clientId/': typeof appLayoutClientsClientIdIndexRoute
   '/clients/$clientId/balance-sheet/': typeof appLayoutClientsClientIdBalanceSheetIndexRoute
   '/clients/$clientId/cashflow/': typeof appLayoutClientsClientIdCashflowIndexRoute
   '/clients/$clientId/documents/': typeof appLayoutClientsClientIdDocumentsIndexRoute
+  '/clients/$clientId/fact-find/': typeof appLayoutClientsClientIdFactFindIndexRoute
   '/clients/$clientId/file-notes/': typeof appLayoutClientsClientIdFileNotesIndexRoute
   '/clients/$clientId/goals/': typeof appLayoutClientsClientIdGoalsIndexRoute
   '/clients/$clientId/insurance/': typeof appLayoutClientsClientIdInsuranceIndexRoute
   '/clients/$clientId/jobs/': typeof appLayoutClientsClientIdJobsIndexRoute
   '/clients/$clientId/service-agreements/': typeof appLayoutClientsClientIdServiceAgreementsIndexRoute
+  '/clients/$clientId/soa/': typeof appLayoutClientsClientIdSoaIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/accept-invitation': typeof AcceptInvitationRoute
+  '/fact-find': typeof FactFindRoute
   '/login': typeof authLoginRoute
   '/register': typeof authRegisterRoute
   '/dashboard': typeof appLayoutDashboardRoute
   '/settings': typeof appLayoutSettingsRoute
+  '/tasks': typeof appLayoutTasksRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/fact-find/$clientId': typeof appLayoutFactFindClientIdRoute
   '/jobs/$jobId': typeof appLayoutJobsJobIdRoute
+  '/soa/$soaId': typeof appLayoutSoaSoaIdRoute
   '/clients': typeof appLayoutClientsIndexRoute
   '/jobs': typeof appLayoutJobsIndexRoute
   '/clients/$clientId': typeof appLayoutClientsClientIdIndexRoute
   '/clients/$clientId/balance-sheet': typeof appLayoutClientsClientIdBalanceSheetIndexRoute
   '/clients/$clientId/cashflow': typeof appLayoutClientsClientIdCashflowIndexRoute
   '/clients/$clientId/documents': typeof appLayoutClientsClientIdDocumentsIndexRoute
+  '/clients/$clientId/fact-find': typeof appLayoutClientsClientIdFactFindIndexRoute
   '/clients/$clientId/file-notes': typeof appLayoutClientsClientIdFileNotesIndexRoute
   '/clients/$clientId/goals': typeof appLayoutClientsClientIdGoalsIndexRoute
   '/clients/$clientId/insurance': typeof appLayoutClientsClientIdInsuranceIndexRoute
   '/clients/$clientId/jobs': typeof appLayoutClientsClientIdJobsIndexRoute
   '/clients/$clientId/service-agreements': typeof appLayoutClientsClientIdServiceAgreementsIndexRoute
+  '/clients/$clientId/soa': typeof appLayoutClientsClientIdSoaIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/accept-invitation': typeof AcceptInvitationRoute
+  '/fact-find': typeof FactFindRoute
   '/(app)/_layout': typeof appLayoutRouteWithChildren
   '/(auth)/login': typeof authLoginRoute
   '/(auth)/register': typeof authRegisterRoute
   '/(app)/_layout/dashboard': typeof appLayoutDashboardRoute
   '/(app)/_layout/settings': typeof appLayoutSettingsRoute
+  '/(app)/_layout/tasks': typeof appLayoutTasksRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/(app)/_layout/clients/$clientId': typeof appLayoutClientsClientIdRouteWithChildren
+  '/(app)/_layout/fact-find/$clientId': typeof appLayoutFactFindClientIdRoute
   '/(app)/_layout/jobs/$jobId': typeof appLayoutJobsJobIdRoute
+  '/(app)/_layout/soa/$soaId': typeof appLayoutSoaSoaIdRoute
   '/(app)/_layout/clients/': typeof appLayoutClientsIndexRoute
   '/(app)/_layout/jobs/': typeof appLayoutJobsIndexRoute
   '/(app)/_layout/clients/$clientId/': typeof appLayoutClientsClientIdIndexRoute
   '/(app)/_layout/clients/$clientId/balance-sheet/': typeof appLayoutClientsClientIdBalanceSheetIndexRoute
   '/(app)/_layout/clients/$clientId/cashflow/': typeof appLayoutClientsClientIdCashflowIndexRoute
   '/(app)/_layout/clients/$clientId/documents/': typeof appLayoutClientsClientIdDocumentsIndexRoute
+  '/(app)/_layout/clients/$clientId/fact-find/': typeof appLayoutClientsClientIdFactFindIndexRoute
   '/(app)/_layout/clients/$clientId/file-notes/': typeof appLayoutClientsClientIdFileNotesIndexRoute
   '/(app)/_layout/clients/$clientId/goals/': typeof appLayoutClientsClientIdGoalsIndexRoute
   '/(app)/_layout/clients/$clientId/insurance/': typeof appLayoutClientsClientIdInsuranceIndexRoute
   '/(app)/_layout/clients/$clientId/jobs/': typeof appLayoutClientsClientIdJobsIndexRoute
   '/(app)/_layout/clients/$clientId/service-agreements/': typeof appLayoutClientsClientIdServiceAgreementsIndexRoute
+  '/(app)/_layout/clients/$clientId/soa/': typeof appLayoutClientsClientIdSoaIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/accept-invitation'
+    | '/fact-find'
     | '/login'
     | '/register'
     | '/dashboard'
     | '/settings'
+    | '/tasks'
     | '/api/auth/$'
     | '/clients/$clientId'
+    | '/fact-find/$clientId'
     | '/jobs/$jobId'
+    | '/soa/$soaId'
     | '/clients/'
     | '/jobs/'
     | '/clients/$clientId/'
     | '/clients/$clientId/balance-sheet/'
     | '/clients/$clientId/cashflow/'
     | '/clients/$clientId/documents/'
+    | '/clients/$clientId/fact-find/'
     | '/clients/$clientId/file-notes/'
     | '/clients/$clientId/goals/'
     | '/clients/$clientId/insurance/'
     | '/clients/$clientId/jobs/'
     | '/clients/$clientId/service-agreements/'
+    | '/clients/$clientId/soa/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/accept-invitation'
+    | '/fact-find'
     | '/login'
     | '/register'
     | '/dashboard'
     | '/settings'
+    | '/tasks'
     | '/api/auth/$'
+    | '/fact-find/$clientId'
     | '/jobs/$jobId'
+    | '/soa/$soaId'
     | '/clients'
     | '/jobs'
     | '/clients/$clientId'
     | '/clients/$clientId/balance-sheet'
     | '/clients/$clientId/cashflow'
     | '/clients/$clientId/documents'
+    | '/clients/$clientId/fact-find'
     | '/clients/$clientId/file-notes'
     | '/clients/$clientId/goals'
     | '/clients/$clientId/insurance'
     | '/clients/$clientId/jobs'
     | '/clients/$clientId/service-agreements'
+    | '/clients/$clientId/soa'
   id:
     | '__root__'
     | '/'
     | '/accept-invitation'
+    | '/fact-find'
     | '/(app)/_layout'
     | '/(auth)/login'
     | '/(auth)/register'
     | '/(app)/_layout/dashboard'
     | '/(app)/_layout/settings'
+    | '/(app)/_layout/tasks'
     | '/api/auth/$'
     | '/(app)/_layout/clients/$clientId'
+    | '/(app)/_layout/fact-find/$clientId'
     | '/(app)/_layout/jobs/$jobId'
+    | '/(app)/_layout/soa/$soaId'
     | '/(app)/_layout/clients/'
     | '/(app)/_layout/jobs/'
     | '/(app)/_layout/clients/$clientId/'
     | '/(app)/_layout/clients/$clientId/balance-sheet/'
     | '/(app)/_layout/clients/$clientId/cashflow/'
     | '/(app)/_layout/clients/$clientId/documents/'
+    | '/(app)/_layout/clients/$clientId/fact-find/'
     | '/(app)/_layout/clients/$clientId/file-notes/'
     | '/(app)/_layout/clients/$clientId/goals/'
     | '/(app)/_layout/clients/$clientId/insurance/'
     | '/(app)/_layout/clients/$clientId/jobs/'
     | '/(app)/_layout/clients/$clientId/service-agreements/'
+    | '/(app)/_layout/clients/$clientId/soa/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AcceptInvitationRoute: typeof AcceptInvitationRoute
+  FactFindRoute: typeof FactFindRoute
   appLayoutRoute: typeof appLayoutRouteWithChildren
   authLoginRoute: typeof authLoginRoute
   authRegisterRoute: typeof authRegisterRoute
@@ -293,6 +369,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/fact-find': {
+      id: '/fact-find'
+      path: '/fact-find'
+      fullPath: '/fact-find'
+      preLoaderRoute: typeof FactFindRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/accept-invitation': {
       id: '/accept-invitation'
       path: '/accept-invitation'
@@ -335,6 +418,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/(app)/_layout/tasks': {
+      id: '/(app)/_layout/tasks'
+      path: '/tasks'
+      fullPath: '/tasks'
+      preLoaderRoute: typeof appLayoutTasksRouteImport
+      parentRoute: typeof appLayoutRoute
+    }
     '/(app)/_layout/settings': {
       id: '/(app)/_layout/settings'
       path: '/settings'
@@ -363,11 +453,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof appLayoutClientsIndexRouteImport
       parentRoute: typeof appLayoutRoute
     }
+    '/(app)/_layout/soa/$soaId': {
+      id: '/(app)/_layout/soa/$soaId'
+      path: '/soa/$soaId'
+      fullPath: '/soa/$soaId'
+      preLoaderRoute: typeof appLayoutSoaSoaIdRouteImport
+      parentRoute: typeof appLayoutRoute
+    }
     '/(app)/_layout/jobs/$jobId': {
       id: '/(app)/_layout/jobs/$jobId'
       path: '/jobs/$jobId'
       fullPath: '/jobs/$jobId'
       preLoaderRoute: typeof appLayoutJobsJobIdRouteImport
+      parentRoute: typeof appLayoutRoute
+    }
+    '/(app)/_layout/fact-find/$clientId': {
+      id: '/(app)/_layout/fact-find/$clientId'
+      path: '/fact-find/$clientId'
+      fullPath: '/fact-find/$clientId'
+      preLoaderRoute: typeof appLayoutFactFindClientIdRouteImport
       parentRoute: typeof appLayoutRoute
     }
     '/(app)/_layout/clients/$clientId': {
@@ -382,6 +486,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/clients/$clientId/'
       preLoaderRoute: typeof appLayoutClientsClientIdIndexRouteImport
+      parentRoute: typeof appLayoutClientsClientIdRoute
+    }
+    '/(app)/_layout/clients/$clientId/soa/': {
+      id: '/(app)/_layout/clients/$clientId/soa/'
+      path: '/soa'
+      fullPath: '/clients/$clientId/soa/'
+      preLoaderRoute: typeof appLayoutClientsClientIdSoaIndexRouteImport
       parentRoute: typeof appLayoutClientsClientIdRoute
     }
     '/(app)/_layout/clients/$clientId/service-agreements/': {
@@ -419,6 +530,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof appLayoutClientsClientIdFileNotesIndexRouteImport
       parentRoute: typeof appLayoutClientsClientIdRoute
     }
+    '/(app)/_layout/clients/$clientId/fact-find/': {
+      id: '/(app)/_layout/clients/$clientId/fact-find/'
+      path: '/fact-find'
+      fullPath: '/clients/$clientId/fact-find/'
+      preLoaderRoute: typeof appLayoutClientsClientIdFactFindIndexRouteImport
+      parentRoute: typeof appLayoutClientsClientIdRoute
+    }
     '/(app)/_layout/clients/$clientId/documents/': {
       id: '/(app)/_layout/clients/$clientId/documents/'
       path: '/documents'
@@ -448,11 +566,13 @@ interface appLayoutClientsClientIdRouteChildren {
   appLayoutClientsClientIdBalanceSheetIndexRoute: typeof appLayoutClientsClientIdBalanceSheetIndexRoute
   appLayoutClientsClientIdCashflowIndexRoute: typeof appLayoutClientsClientIdCashflowIndexRoute
   appLayoutClientsClientIdDocumentsIndexRoute: typeof appLayoutClientsClientIdDocumentsIndexRoute
+  appLayoutClientsClientIdFactFindIndexRoute: typeof appLayoutClientsClientIdFactFindIndexRoute
   appLayoutClientsClientIdFileNotesIndexRoute: typeof appLayoutClientsClientIdFileNotesIndexRoute
   appLayoutClientsClientIdGoalsIndexRoute: typeof appLayoutClientsClientIdGoalsIndexRoute
   appLayoutClientsClientIdInsuranceIndexRoute: typeof appLayoutClientsClientIdInsuranceIndexRoute
   appLayoutClientsClientIdJobsIndexRoute: typeof appLayoutClientsClientIdJobsIndexRoute
   appLayoutClientsClientIdServiceAgreementsIndexRoute: typeof appLayoutClientsClientIdServiceAgreementsIndexRoute
+  appLayoutClientsClientIdSoaIndexRoute: typeof appLayoutClientsClientIdSoaIndexRoute
 }
 
 const appLayoutClientsClientIdRouteChildren: appLayoutClientsClientIdRouteChildren =
@@ -464,6 +584,8 @@ const appLayoutClientsClientIdRouteChildren: appLayoutClientsClientIdRouteChildr
       appLayoutClientsClientIdCashflowIndexRoute,
     appLayoutClientsClientIdDocumentsIndexRoute:
       appLayoutClientsClientIdDocumentsIndexRoute,
+    appLayoutClientsClientIdFactFindIndexRoute:
+      appLayoutClientsClientIdFactFindIndexRoute,
     appLayoutClientsClientIdFileNotesIndexRoute:
       appLayoutClientsClientIdFileNotesIndexRoute,
     appLayoutClientsClientIdGoalsIndexRoute:
@@ -474,6 +596,8 @@ const appLayoutClientsClientIdRouteChildren: appLayoutClientsClientIdRouteChildr
       appLayoutClientsClientIdJobsIndexRoute,
     appLayoutClientsClientIdServiceAgreementsIndexRoute:
       appLayoutClientsClientIdServiceAgreementsIndexRoute,
+    appLayoutClientsClientIdSoaIndexRoute:
+      appLayoutClientsClientIdSoaIndexRoute,
   }
 
 const appLayoutClientsClientIdRouteWithChildren =
@@ -484,8 +608,11 @@ const appLayoutClientsClientIdRouteWithChildren =
 interface appLayoutRouteChildren {
   appLayoutDashboardRoute: typeof appLayoutDashboardRoute
   appLayoutSettingsRoute: typeof appLayoutSettingsRoute
+  appLayoutTasksRoute: typeof appLayoutTasksRoute
   appLayoutClientsClientIdRoute: typeof appLayoutClientsClientIdRouteWithChildren
+  appLayoutFactFindClientIdRoute: typeof appLayoutFactFindClientIdRoute
   appLayoutJobsJobIdRoute: typeof appLayoutJobsJobIdRoute
+  appLayoutSoaSoaIdRoute: typeof appLayoutSoaSoaIdRoute
   appLayoutClientsIndexRoute: typeof appLayoutClientsIndexRoute
   appLayoutJobsIndexRoute: typeof appLayoutJobsIndexRoute
 }
@@ -493,8 +620,11 @@ interface appLayoutRouteChildren {
 const appLayoutRouteChildren: appLayoutRouteChildren = {
   appLayoutDashboardRoute: appLayoutDashboardRoute,
   appLayoutSettingsRoute: appLayoutSettingsRoute,
+  appLayoutTasksRoute: appLayoutTasksRoute,
   appLayoutClientsClientIdRoute: appLayoutClientsClientIdRouteWithChildren,
+  appLayoutFactFindClientIdRoute: appLayoutFactFindClientIdRoute,
   appLayoutJobsJobIdRoute: appLayoutJobsJobIdRoute,
+  appLayoutSoaSoaIdRoute: appLayoutSoaSoaIdRoute,
   appLayoutClientsIndexRoute: appLayoutClientsIndexRoute,
   appLayoutJobsIndexRoute: appLayoutJobsIndexRoute,
 }
@@ -506,6 +636,7 @@ const appLayoutRouteWithChildren = appLayoutRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AcceptInvitationRoute: AcceptInvitationRoute,
+  FactFindRoute: FactFindRoute,
   appLayoutRoute: appLayoutRouteWithChildren,
   authLoginRoute: authLoginRoute,
   authRegisterRoute: authRegisterRoute,
