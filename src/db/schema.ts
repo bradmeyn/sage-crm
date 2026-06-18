@@ -114,9 +114,16 @@ export const client = pgTable('client', {
     .references(() => organization.id, { onDelete: 'cascade' }),
   title: text('title'),
   firstName: text('first_name').notNull(),
+  middleName: text('middle_name'),
   lastName: text('last_name').notNull(),
   preferredName: text('preferred_name'),
   dateOfBirth: text('date_of_birth'),
+  // MALE | FEMALE | OTHER | PREFER_NOT_SAY
+  gender: text('gender'),
+  // SINGLE | MARRIED | DE_FACTO | SEPARATED | DIVORCED | WIDOWED
+  maritalStatus: text('marital_status'),
+  // AU_RESIDENT | FOREIGN_RESIDENT | TEMP_RESIDENT (tax residency)
+  residencyStatus: text('residency_status'),
   email: text('email'),
   phone: text('phone'),
   streetAddress: text('street_address'),
@@ -124,8 +131,14 @@ export const client = pgTable('client', {
   state: text('state'),
   postcode: text('postcode'),
   country: text('country'),
+  // PROSPECT | ACTIVE | INACTIVE | FORMER
   status: text('status').notNull().default('PROSPECT'),
-  isActive: boolean('is_active').notNull().default(true),
+  // REFERRAL | WEBSITE | EVENT | SOCIAL | EXISTING_CLIENT | OTHER
+  leadSource: text('lead_source'),
+  // YYYY-MM-DD — onboarded date, distinct from createdAt
+  clientSince: text('client_since'),
+  isVulnerable: boolean('is_vulnerable').notNull().default(false),
+  vulnerabilityNote: text('vulnerability_note'),
   primaryAdvisorId: text('primary_advisor_id').references(() => user.id),
   taxFileNumber: text('tax_file_number'),
   occupation: text('occupation'),

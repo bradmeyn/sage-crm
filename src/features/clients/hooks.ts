@@ -53,8 +53,8 @@ export function useCreateClient() {
 export function useUpdateClient() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ clientId, ...data }: NewClient & { clientId: string }) =>
-      updateClient({ data: { clientId, ...data } }),
+    mutationFn: (data: Parameters<typeof updateClient>[0]["data"]) =>
+      updateClient({ data }),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: clientKeys.list() });
       queryClient.invalidateQueries({

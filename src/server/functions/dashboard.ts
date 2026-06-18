@@ -13,7 +13,7 @@ export const getNewClients = createServerFn({ method: "GET" })
     return db.query.client.findMany({
       where: and(
         eq(client.organizationId, orgId),
-        eq(client.isActive, true),
+        eq(client.status, "ACTIVE"),
         gte(client.createdAt, thirtyDaysAgo),
       ),
       orderBy: (c, { desc }) => [desc(c.createdAt)],
@@ -29,7 +29,7 @@ export const getUpcomingBirthdays = createServerFn({ method: "GET" })
     const allWithDob = await db.query.client.findMany({
       where: and(
         eq(client.organizationId, orgId),
-        eq(client.isActive, true),
+        eq(client.status, "ACTIVE"),
         isNotNull(client.dateOfBirth),
       ),
       orderBy: (c, { asc }) => [asc(c.lastName), asc(c.firstName)],
@@ -88,7 +88,7 @@ export const getDashboardStats = createServerFn({ method: "GET" })
         .select({ totalActiveClients: count() })
         .from(client)
         .where(
-          and(eq(client.organizationId, orgId), eq(client.isActive, true)),
+          and(eq(client.organizationId, orgId), eq(client.status, "ACTIVE")),
         ),
       db
         .select({ activeJobs: count() })

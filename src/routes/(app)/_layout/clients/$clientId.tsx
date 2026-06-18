@@ -10,8 +10,20 @@ import type { ClientWithPartner } from "@/server/functions/clients";
 import { clientKeys } from "@/features/clients/hooks";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { clientStatusLabel } from "@/features/clients/schemas";
 import { Phone, Mail, Copy, Edit } from "lucide-react";
 import { toast } from "sonner";
+
+const STATUS_VARIANT: Record<
+  string,
+  "default" | "secondary" | "outline"
+> = {
+  ACTIVE: "default",
+  PROSPECT: "secondary",
+  INACTIVE: "outline",
+  FORMER: "outline",
+};
 
 export const Route = createFileRoute("/(app)/_layout/clients/$clientId")({
   component: ClientLayout,
@@ -32,11 +44,16 @@ function ClientLayout() {
       <Card className="mb-6">
         <div>
           <div className="flex items-center justify-between mb-4">
-            <h1 className="heading-primary mx-4">
-              {client.firstName}
-              {client.preferredName ? ` (${client.preferredName})` : ""}{" "}
-              {client.lastName}
-            </h1>
+            <div className="mx-4 flex items-center gap-3">
+              <h1 className="heading-primary">
+                {client.firstName}
+                {client.preferredName ? ` (${client.preferredName})` : ""}{" "}
+                {client.lastName}
+              </h1>
+              <Badge variant={STATUS_VARIANT[client.status] ?? "secondary"}>
+                {clientStatusLabel(client.status)}
+              </Badge>
+            </div>
             <div className="flex space-x-3">
               <Button size="sm">
                 <Edit className="mr-2 size-4" />

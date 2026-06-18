@@ -99,6 +99,13 @@
       "when": 1749946800000,
       "tag": "0014_soa",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1749947200000,
+      "tag": "0015_client_fields",
+      "breakpoints": true
     }
   ]
 }

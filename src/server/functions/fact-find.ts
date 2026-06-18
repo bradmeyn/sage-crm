@@ -85,7 +85,11 @@ const updateBeneficiarySchema = beneficiaryInputSchema.extend({
 const personalInputSchema = z.object({
   clientId: z.string(),
   title: z.string().optional(),
+  middleName: z.string().optional(),
   dateOfBirth: z.string().optional(),
+  gender: z.string().optional(),
+  maritalStatus: z.string().optional(),
+  residencyStatus: z.string().optional(),
   email: z.string().optional(),
   phone: z.string().optional(),
   streetAddress: z.string().optional(),
@@ -444,7 +448,11 @@ export const updatePersonal = createServerFn({ method: "POST" })
       .update(client)
       .set({
         title: data.title || null,
+        middleName: data.middleName || null,
         dateOfBirth: data.dateOfBirth || null,
+        gender: data.gender || null,
+        maritalStatus: data.maritalStatus || null,
+        residencyStatus: data.residencyStatus || null,
         email: data.email || null,
         phone: data.phone || null,
         streetAddress: data.streetAddress || null,

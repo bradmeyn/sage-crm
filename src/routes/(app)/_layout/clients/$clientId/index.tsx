@@ -4,6 +4,7 @@ import { getClient } from "@/server/functions/clients";
 import type { ClientWithPartner } from "@/server/functions/clients";
 import { clientKeys } from "@/features/clients/hooks";
 import PartnerSection from "@/features/clients/components/partner-section";
+import ClientPracticeCard from "@/features/clients/components/client-practice-card";
 
 export const Route = createFileRoute("/(app)/_layout/clients/$clientId/")({
   component: ClientDetailPage,
@@ -60,6 +61,8 @@ function ClientDetailPage() {
             </div>
           </dl>
         </div>
+
+        <ClientPracticeCard client={client} />
 
         <PartnerSection client={client} />
       </CardContent>

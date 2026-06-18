@@ -24,7 +24,7 @@ const clients = [
     state: 'VIC',
     postcode: '3161',
     country: 'Australia',
-    status: 'CLIENT',
+    status: 'ACTIVE',
     quickNote: 'Long-term client, very engaged with retirement planning',
   },
   {
@@ -41,7 +41,7 @@ const clients = [
     state: 'VIC',
     postcode: '3161',
     country: 'Australia',
-    status: 'CLIENT',
+    status: 'ACTIVE',
     quickNote: 'Michael\'s wife, joint client',
   },
   {
@@ -58,7 +58,7 @@ const clients = [
     state: 'VIC',
     postcode: '3128',
     country: 'Australia',
-    status: 'CLIENT',
+    status: 'ACTIVE',
     quickNote: 'Owns small accounting firm, SMSF client',
   },
   {
@@ -75,7 +75,7 @@ const clients = [
     state: 'VIC',
     postcode: '3065',
     country: 'Australia',
-    status: 'CLIENT',
+    status: 'ACTIVE',
     quickNote: 'First home buyer, looking to get into property',
   },
   {
@@ -92,7 +92,7 @@ const clients = [
     state: 'VIC',
     postcode: '3186',
     country: 'Australia',
-    status: 'CLIENT',
+    status: 'ACTIVE',
     quickNote: 'Retired GP, managing pension drawdown',
   },
   {
@@ -109,7 +109,7 @@ const clients = [
     state: 'VIC',
     postcode: '3186',
     country: 'Australia',
-    status: 'CLIENT',
+    status: 'ACTIVE',
     quickNote: 'Robert\'s wife, co-investment portfolio',
   },
   {
@@ -126,7 +126,7 @@ const clients = [
     state: 'VIC',
     postcode: '3150',
     country: 'Australia',
-    status: 'CLIENT',
+    status: 'ACTIVE',
     quickNote: 'Investment property owner, high income earner',
   },
   {
@@ -160,7 +160,7 @@ const clients = [
     state: 'VIC',
     postcode: '3108',
     country: 'Australia',
-    status: 'CLIENT',
+    status: 'ACTIVE',
     quickNote: 'Redundancy payout to invest, very motivated',
   },
   {
@@ -177,7 +177,7 @@ const clients = [
     state: 'VIC',
     postcode: '3108',
     country: 'Australia',
-    status: 'CLIENT',
+    status: 'ACTIVE',
     quickNote: 'Thomas\'s wife, couple strategy review due',
   },
   {
@@ -194,7 +194,7 @@ const clients = [
     state: 'VIC',
     postcode: '3141',
     country: 'Australia',
-    status: 'CLIENT',
+    status: 'ACTIVE',
     quickNote: 'Looking to buy investment property in 2 years',
   },
   {
@@ -211,7 +211,7 @@ const clients = [
     state: 'VIC',
     postcode: '3144',
     country: 'Australia',
-    status: 'CLIENT',
+    status: 'ACTIVE',
     quickNote: 'Divorce settlement, rebuilding financial plan',
   },
   {
@@ -228,7 +228,7 @@ const clients = [
     state: 'VIC',
     postcode: '3124',
     country: 'Australia',
-    status: 'CLIENT',
+    status: 'ACTIVE',
     quickNote: 'Complex estate planning requirements',
   },
   {
@@ -262,7 +262,7 @@ const clients = [
     state: 'VIC',
     postcode: '3166',
     country: 'Australia',
-    status: 'CLIENT',
+    status: 'ACTIVE',
     quickNote: 'Business succession planning in progress',
   },
   {
@@ -279,7 +279,7 @@ const clients = [
     state: 'VIC',
     postcode: '3166',
     country: 'Australia',
-    status: 'CLIENT',
+    status: 'ACTIVE',
     quickNote: 'George\'s wife, joint SMSF',
   },
   {
@@ -296,7 +296,7 @@ const clients = [
     state: 'VIC',
     postcode: '3040',
     country: 'Australia',
-    status: 'CLIENT',
+    status: 'ACTIVE',
     quickNote: 'High salary, focus on tax minimisation strategies',
   },
   {
@@ -313,7 +313,7 @@ const clients = [
     state: 'VIC',
     postcode: '3181',
     country: 'Australia',
-    status: 'CLIENT',
+    status: 'ACTIVE',
     quickNote: 'Inherited share portfolio from grandparents',
   },
   {
@@ -330,7 +330,7 @@ const clients = [
     state: 'VIC',
     postcode: '3122',
     country: 'Australia',
-    status: 'CLIENT',
+    status: 'ACTIVE',
     quickNote: 'Aged care planning required, family involved',
   },
   {
@@ -347,7 +347,7 @@ const clients = [
     state: 'VIC',
     postcode: '3182',
     country: 'Australia',
-    status: 'CLIENT',
+    status: 'ACTIVE',
     quickNote: 'Recently engaged, updating beneficiary nominations',
   },
   {
@@ -381,7 +381,7 @@ const clients = [
     state: 'VIC',
     postcode: '3103',
     country: 'Australia',
-    status: 'CLIENT',
+    status: 'ACTIVE',
     quickNote: 'Commission-based income, irregular cash flow',
   },
   {
@@ -398,7 +398,7 @@ const clients = [
     state: 'VIC',
     postcode: '3101',
     country: 'Australia',
-    status: 'CLIENT',
+    status: 'ACTIVE',
     quickNote: 'Stock options vesting next year, tax advice needed',
   },
 ]
@@ -443,7 +443,6 @@ async function seed() {
       postcode: c.postcode,
       country: c.country,
       status: c.status,
-      isActive: true,
       occupation: c.occupation || null,
       employer: c.employer || null,
       quickNote: c.quickNote,

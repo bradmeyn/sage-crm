@@ -16,14 +16,25 @@ const clientInputSchema = z.object({
 
 const clientIdSchema = z.object({ clientId: z.string() });
 
+// Partial update — only provided fields are written. Covers core identity plus
+// the practice/CRM fields (status lifecycle, lead source, onboarding date,
+// vulnerable-client flag).
 const updateClientSchema = z.object({
   clientId: z.string(),
   title: z.enum(["Mr", "Ms", "Mrs", "Dr", "Prof"]).optional(),
-  firstName: z.string().min(2),
-  lastName: z.string().min(2),
+  firstName: z.string().min(2).optional(),
+  middleName: z.string().optional(),
+  lastName: z.string().min(2).optional(),
   preferredName: z.string().optional(),
   email: z.string().email().optional().or(z.literal("")),
   phone: z.string().optional(),
+  status: z.enum(["PROSPECT", "ACTIVE", "INACTIVE", "FORMER"]).optional(),
+  leadSource: z
+    .enum(["REFERRAL", "WEBSITE", "EVENT", "SOCIAL", "EXISTING_CLIENT", "OTHER"])
+    .optional(),
+  clientSince: z.string().optional(),
+  isVulnerable: z.boolean().optional(),
+  vulnerabilityNote: z.string().optional(),
 });
 
 const getClientsSchema = z.object({
@@ -116,16 +127,31 @@ export const updateClient = createServerFn({ method: "POST" })
   .handler(async ({ context, data }) => {
     const { session } = context;
     const orgId = session.session.activeOrganizationId!;
-    const { clientId, ...fields } = data;
+    const { clientId, ...f } = data;
+    // Text fields: empty string clears to null. Set only what was provided.
+    const text = (v: string | undefined) =>
+      v === undefined ? undefined : v || null;
     const [updated] = await db
       .update(client)
       .set({
-        title: fields.title,
-        firstName: fields.firstName,
-        lastName: fields.lastName,
-        preferredName: fields.preferredName || null,
-        email: fields.email || null,
-        phone: fields.phone || null,
+        ...(f.title !== undefined ? { title: f.title } : {}),
+        ...(f.firstName !== undefined ? { firstName: f.firstName } : {}),
+        ...(f.middleName !== undefined ? { middleName: text(f.middleName) } : {}),
+        ...(f.lastName !== undefined ? { lastName: f.lastName } : {}),
+        ...(f.preferredName !== undefined
+          ? { preferredName: text(f.preferredName) }
+          : {}),
+        ...(f.email !== undefined ? { email: text(f.email) } : {}),
+        ...(f.phone !== undefined ? { phone: text(f.phone) } : {}),
+        ...(f.status !== undefined ? { status: f.status } : {}),
+        ...(f.leadSource !== undefined ? { leadSource: f.leadSource } : {}),
+        ...(f.clientSince !== undefined
+          ? { clientSince: text(f.clientSince) }
+          : {}),
+        ...(f.isVulnerable !== undefined ? { isVulnerable: f.isVulnerable } : {}),
+        ...(f.vulnerabilityNote !== undefined
+          ? { vulnerabilityNote: text(f.vulnerabilityNote) }
+          : {}),
         updatedById: session.user.id,
         updatedAt: new Date(),
       })
