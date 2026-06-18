@@ -6,10 +6,14 @@ import {
   soa,
   soaRecommendation,
   client,
+  clientGoal,
+  clientRiskProfile,
 } from "@/db/schema";
 import { eq, and, asc, desc } from "drizzle-orm";
 import { z } from "zod";
 import { SYSTEM_STRATEGIES } from "@/features/soa/schemas";
+import { riskCategoryLabel } from "@/features/clients/fact-find/schemas";
+import type { SoaExportData } from "@/features/soa/export-data";
 
 // Lazily seed the system strategy library on first access per org.
 async function seedStrategies(orgId: string) {
@@ -156,6 +160,84 @@ export const deleteSoa = createServerFn({ method: "POST" })
     await verifySoa(data.soaId, orgId);
     await db.delete(soa).where(eq(soa.id, data.soaId));
     return { success: true };
+  });
+
+// ─── Export (PDF / Word) ─────────────────────────────────────────────────────
+
+export const exportSoa = createServerFn({ method: "GET" })
+  .middleware([authMiddleware])
+  .validator(
+    z.object({ soaId: z.string(), format: z.enum(["pdf", "docx"]) }),
+  )
+  .handler(async ({ context, data }) => {
+    const orgId = context.session.session.activeOrganizationId!;
+    await verifySoa(data.soaId, orgId);
+
+    const s = await db.query.soa.findFirst({
+      where: and(eq(soa.id, data.soaId), eq(soa.organizationId, orgId)),
+      with: {
+        recommendations: { orderBy: [asc(soaRecommendation.sortOrder)] },
+      },
+    });
+    if (!s) throw new Error("SOA not found");
+
+    const [c, goals, risk] = await Promise.all([
+      db.query.client.findFirst({ where: eq(client.id, s.clientId) }),
+      db.query.clientGoal.findMany({ where: eq(clientGoal.clientId, s.clientId) }),
+      db.query.clientRiskProfile.findFirst({
+        where: eq(clientRiskProfile.clientId, s.clientId),
+      }),
+    ]);
+
+    const goalName = new Map(goals.map((g) => [g.id, g.name]));
+    const clientName = c ? `${c.firstName} ${c.lastName}` : "";
+
+    const exportData: SoaExportData = {
+      title: s.title,
+      status: s.status,
+      clientName,
+      riskCategory: risk
+        ? riskCategoryLabel(risk.confirmedCategory ?? risk.category)
+        : null,
+      scope: s.scope,
+      intro: s.intro,
+      goalNames: goals.map((g) => g.name),
+      recommendations: s.recommendations.map((r) => ({
+        category: r.category,
+        type: r.type,
+        title: r.title,
+        wording: r.wording,
+        benefits: r.benefits,
+        warnings: r.warnings,
+        data: r.data,
+        goalNames: r.goalIds
+          .map((id) => goalName.get(id))
+          .filter((n): n is string => !!n),
+      })),
+    };
+
+    const base = `${s.title}-${clientName}`
+      .toLowerCase()
+      .replace(/[^a-z0-9.-]+/g, "-");
+
+    // Dynamic imports keep the renderers out of the client bundle.
+    let buffer: Buffer;
+    if (data.format === "pdf") {
+      const { renderToBuffer } = await import("@react-pdf/renderer");
+      const { buildSoaDocument } = await import(
+        "@/features/soa/soa-document"
+      );
+      buffer = Buffer.from(await renderToBuffer(buildSoaDocument(exportData)));
+    } else {
+      const { Packer } = await import("docx");
+      const { buildSoaDocx } = await import("@/features/soa/soa-docx");
+      buffer = await Packer.toBuffer(buildSoaDocx(exportData));
+    }
+
+    return {
+      filename: `${base}.${data.format}`,
+      base64: buffer.toString("base64"),
+    };
   });
 
 // ─── Recommendations ─────────────────────────────────────────────────────────

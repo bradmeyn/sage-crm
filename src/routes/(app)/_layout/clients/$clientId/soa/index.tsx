@@ -3,6 +3,7 @@ import { getSoas } from "@/server/functions/soa";
 import { soaKeys, useSoas, useCreateSoa, useDeleteSoa } from "@/features/soa/hooks";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Plus, FileText, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -64,9 +65,15 @@ function AdvicePage() {
               >
                 <FileText className="size-4 text-muted-foreground" />
                 <div>
-                  <div className="text-sm font-medium">{s.title}</div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium">{s.title}</span>
+                    <Badge
+                      variant={s.status === "ISSUED" ? "default" : "secondary"}
+                    >
+                      {s.status === "ISSUED" ? "Issued" : "Draft"}
+                    </Badge>
+                  </div>
                   <div className="text-xs text-muted-foreground">
-                    {s.status === "ISSUED" ? "Issued" : "Draft"} ·{" "}
                     {new Date(s.updatedAt).toLocaleDateString("en-AU")}
                   </div>
                 </div>

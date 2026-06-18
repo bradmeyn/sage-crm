@@ -12,8 +12,6 @@ import {
   reorderRecommendations,
 } from "@/server/functions/soa";
 
-const CHANGE = false;
-
 export const soaKeys = {
   all: ["soa"] as const,
   templates: () => [...soaKeys.all, "templates"] as const,

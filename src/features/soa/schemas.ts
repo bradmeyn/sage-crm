@@ -18,8 +18,14 @@ export const STRATEGY_TYPES = [
   { value: "INVESTMENT_SWITCH", label: "Investment switch" },
 ] as const;
 
+const labelFrom =
+  (opts: ReadonlyArray<{ value: string; label: string }>) =>
+  (v?: string | null) =>
+    opts.find((o) => o.value === v)?.label ?? v ?? "—";
+
 export const strategyCategoryLabel = (v?: string | null) =>
   STRATEGY_CATEGORIES.find((c) => c.value === v)?.label ?? v ?? "Other";
+export const strategyTypeLabel = labelFrom(STRATEGY_TYPES);
 
 // ─── Structured field options (per recommendation type) ──────────────────────
 
@@ -50,6 +56,11 @@ export const FREQUENCIES = [
   { value: "MONTHLY", label: "Monthly" },
   { value: "ANNUALLY", label: "Annually" },
 ] as const;
+
+export const insuranceCoverTypeLabel = labelFrom(INSURANCE_COVER_TYPES);
+export const insuranceOwnershipLabel = labelFrom(INSURANCE_OWNERSHIP);
+export const contributionTypeLabel = labelFrom(CONTRIBUTION_TYPES);
+export const frequencyLabel = labelFrom(FREQUENCIES);
 
 export type SystemStrategy = {
   name: string;
