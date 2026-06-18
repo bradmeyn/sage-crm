@@ -12,6 +12,8 @@ import {
   reorderRecommendations,
 } from "@/server/functions/soa";
 
+const CHANGE = false;
+
 export const soaKeys = {
   all: ["soa"] as const,
   templates: () => [...soaKeys.all, "templates"] as const,
@@ -74,7 +76,8 @@ function useSoaDetailMutation<TFn extends (a: { data: any }) => Promise<any>>(
 }
 
 export const useUpdateSoa = () => useSoaDetailMutation(updateSoa);
-export const useAddRecommendation = () => useSoaDetailMutation(addRecommendation);
+export const useAddRecommendation = () =>
+  useSoaDetailMutation(addRecommendation);
 export const useUpdateRecommendation = () =>
   useSoaDetailMutation(updateRecommendation);
 export const useDeleteRecommendation = () =>
