@@ -22,6 +22,14 @@ psql "postgresql://bradmeyn:Charlieisagoodboy@localhost:5433/crm_ts" -f drizzle/
 
 **Environment**: `.env.local` — requires `DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `RESEND_API_KEY`
 
+## Feature Docs
+
+Living, as-built reference docs for the core features live in `docs/` (indexed by
+`docs/README.md`): client management, fact find, SOA builder, jobs/pipeline,
+service agreements. **When you add or change a feature, update its doc in the same
+turn**; a new core feature gets a new doc linked from `docs/README.md`. (Older
+point-in-time design specs live under `docs/superpowers/`.)
+
 ## Architecture Overview
 
 ### Stack
