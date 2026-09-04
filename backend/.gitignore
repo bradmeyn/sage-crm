@@ -1,0 +1,77 @@
+# Build results
+[Bb]in/
+[Oo]bj/
+
+# Brad
+commands.txt
+.env
+
+# Visual Studio files
+.vs/
+*.user
+*.userosscache
+*.suo
+*.userprefs
+*.dbmdl
+*.dbproj.schemaview
+*.pfx
+*.publishsettings
+node_modules/
+orleans.codegen.cs
+
+# MSTest test Results
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+
+# .NET Core
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# NuGet Packages
+*.nupkg
+**/packages/*
+!**/packages/build/
+*.nuget.props
+*.nuget.targets
+
+# Visual Studio cache files
+*.[Cc]ache
+!?*.[Cc]ache/
+
+# SQL Server files
+*.mdf
+*.ldf
+*.ndf
+
+# Local development settings
+appsettings.Development.json
+appsettings.local.json
+*.local.json
+
+# Logs
+*.log
+logs/
+
+# Resharper
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+
+# Rider
+.idea/
+*.sln.iml
+
+# TestStore
+*.teststore
+
+# .NET Scaffolding
+ScaffoldingReadMe.txt
+
+# ASP.NET Scaffolding
+ScaffoldingReadMe.txt
+
+# Temporary files
+.tmp/
+tmp/
+temp/
