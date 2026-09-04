@@ -17,19 +17,36 @@ demonstrate a full-stack slice: auth, multi-tenancy, CRUD, file upload.
 
 ## Running locally
 
-**Backend** — needs a local Postgres (see `backend/appsettings.json` for the
-connection string shape) and JWT settings, supplied via `dotnet user-secrets` or
-`appsettings.Development.json` (gitignored — never commit real secrets there):
+**Backend** — no secrets are committed (see `.gitignore`), so a fresh clone needs
+its own Postgres + JWT config supplied via `dotnet user-secrets`:
 
 ```bash
 cd backend
+
+# 1. A local Postgres — either Docker...
+docker run -d --name sage-crm-db -p 5432:5432 \
+  -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=crm_dev postgres:17
+# ...or `createdb crm_dev` against a local install. Either way, match the
+# connection string below to whatever host/port/db/user you end up with.
+
+# 2. Secrets (dotnet user-secrets, not appsettings — never commit real values)
+dotnet user-secrets init
+dotnet user-secrets set "ConnectionStrings:DefaultConnection" \
+  "Host=localhost;Port=5432;Database=crm_dev;Username=postgres;Password=postgres"
+dotnet user-secrets set "JwtSettings:Secret" "change-me-to-any-string-32-chars-or-longer"
+dotnet user-secrets set "JwtSettings:Issuer" "sage-crm-api"
+dotnet user-secrets set "JwtSettings:Audience" "sage-crm-frontend"
+
+# 3. Migrate + run
 dotnet ef database update
 ASPNETCORE_ENVIRONMENT=Development dotnet run --urls http://localhost:5051
 ```
 
 In `Development`, email confirmation links log to the console instead of sending
 a real email, and file uploads write to `backend/uploads/` instead of Azure Blob
-Storage — no cloud credentials needed to run this locally.
+Storage — no cloud credentials needed to run this locally. After registering via
+the API, grab the confirmation link from the console output to activate the
+account (there's no email inbox in dev).
 
 **Frontend**:
 

@@ -22,7 +22,7 @@ services:
   crm-api:
     build:
       context: .
-      dockerfile: CrmApi/Dockerfile
+      dockerfile: DockerFile
     container_name: crm-api
     restart: always
     depends_on:
