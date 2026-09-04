@@ -23,11 +23,14 @@ public class ClientResponseDto
     [JsonPropertyName("phone")]
     public string? Phone { get; set; }
 
+    [JsonPropertyName("dateOfBirth")]
+    public DateOnly? DateOfBirth { get; set; }
+
     [JsonPropertyName("address")]
     public AddressDto? Address { get; set; }
 
-    [JsonPropertyName("isActive")]
-    public bool IsActive { get; set; }
+    [JsonPropertyName("status")]
+    public string Status { get; set; } = string.Empty;
 
     [JsonPropertyName("businessId")]
     public Guid BusinessId { get; set; }

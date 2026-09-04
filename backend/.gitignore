@@ -5,6 +5,8 @@
 # Brad
 commands.txt
 .env
+appsettings.Development.json
+uploads/
 
 # Visual Studio files
 .vs/

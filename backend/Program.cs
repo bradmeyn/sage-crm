@@ -8,13 +8,16 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.IdentityModel.Tokens.Jwt;
+using System.Text.Json.Serialization;
 
 // Disable default claim type mapping so JWT claims keep their original names (e.g., "sub" stays "sub")
 JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 builder.Services.AddOpenApi();
 builder.Services.AddLogging();
 
@@ -32,12 +35,23 @@ builder.Services.AddCors(options =>
 
 
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
-builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IClientService, ClientService>();
 builder.Services.AddScoped<IFileNoteService, FileNoteService>();
-builder.Services.AddScoped<IFileStorageService, FileStorageService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
+
+// Dev-only stand-ins so registration/email-confirmation and file upload work without
+// real SMTP/Azure credentials locally — see ConsoleEmailService/LocalFileStorageService.
+if (builder.Environment.IsDevelopment())
+{
+    builder.Services.AddScoped<IEmailService, ConsoleEmailService>();
+    builder.Services.AddScoped<IFileStorageService, LocalFileStorageService>();
+}
+else
+{
+    builder.Services.AddScoped<IEmailService, EmailService>();
+    builder.Services.AddScoped<IFileStorageService, FileStorageService>();
+}
 
 
 // Database connection (PostgreSQL) with logging
@@ -122,6 +136,16 @@ if(app.Environment.IsProduction())
    app.UseHttpsRedirection();
 }
 
+if (app.Environment.IsDevelopment())
+{
+    var uploadsPath = Path.Combine(app.Environment.ContentRootPath, "uploads");
+    Directory.CreateDirectory(uploadsPath);
+    app.UseStaticFiles(new StaticFileOptions
+    {
+        FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(uploadsPath),
+        RequestPath = "/uploads",
+    });
+}
 
 app.UseCors("AllowReactApp");
 app.UseAuthentication();

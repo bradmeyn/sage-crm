@@ -20,17 +20,20 @@ namespace CrmApi.Services
     private readonly ApplicationDbContext _context;
     private readonly IJwtTokenService _jwtTokenService;
     private readonly IEmailService _emailService;
+    private readonly IConfiguration _config;
 
     public AuthService(
         UserManager<User> userManager,
         ApplicationDbContext context,
         IJwtTokenService jwtTokenService,
-        IEmailService emailService)
+        IEmailService emailService,
+        IConfiguration config)
     {
         _userManager = userManager;
         _context = context;
         _jwtTokenService = jwtTokenService;
         _emailService = emailService;
+        _config = config;
     }
 
     public async Task<AuthResponseDto> LoginAsync(LoginDto dto)
@@ -97,7 +100,8 @@ namespace CrmApi.Services
         await _userManager.AddToRoleAsync(user, "Admin");
 
         var emailToken = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-        var confirmationLink = $"/api/auth/confirm-email?userId={user.Id}&token={Uri.EscapeDataString(emailToken)}";
+        var backendBaseUrl = _config["Backend:BaseUrl"] ?? "http://localhost:5051";
+        var confirmationLink = $"{backendBaseUrl}/api/auth/confirm-email?userId={user.Id}&token={Uri.EscapeDataString(emailToken)}";
         var emailSent = await _emailService.SendEmailConfirmationAsync(user, confirmationLink);
 
         return new RegisterResultDto

@@ -57,6 +57,8 @@ public class ClientService : IClientService
         existingClient.Suburb = client.Suburb ?? existingClient.Suburb;
         existingClient.State = client.State ?? existingClient.State;
         existingClient.PostCode = client.PostCode ?? existingClient.PostCode;
+        existingClient.DateOfBirth = client.DateOfBirth != DateOnly.MinValue ? client.DateOfBirth : existingClient.DateOfBirth;
+        existingClient.Status = client.Status;
         existingClient.UpdatedAt = DateTime.UtcNow;
 
         _context.Clients.Update(existingClient);

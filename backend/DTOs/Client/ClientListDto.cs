@@ -23,8 +23,8 @@ public class ClientListDto
     [JsonPropertyName("phone")]
     public string? Phone { get; set; }
 
-    [JsonPropertyName("isActive")]
-    public bool IsActive { get; set; }
+    [JsonPropertyName("status")]
+    public string Status { get; set; } = string.Empty;
 
     [JsonPropertyName("createdAt")]
     public DateTime CreatedAt { get; set; }

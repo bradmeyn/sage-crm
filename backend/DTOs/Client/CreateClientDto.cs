@@ -33,6 +33,9 @@ public class CreateClientDto
     [StringLength(20, ErrorMessage = "Phone number cannot exceed 20 characters")]
     public string? Phone { get; set; }
 
+    [JsonPropertyName("dateOfBirth")]
+    public DateOnly? DateOfBirth { get; set; }
+
     [JsonPropertyName("address")]
     public AddressDto? Address { get; set; }
 }

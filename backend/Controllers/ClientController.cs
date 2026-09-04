@@ -32,7 +32,7 @@ public class ClientController : ControllerBase
     public async Task<IActionResult> GetClients()
     {
         var clients = await _clientService.GetClientsAsync(_currentUserService.BusinessId);
-        return Ok(clients);
+        return Ok(clients.Select(c => c.ToListDto()));
     }
 
     [HttpGet("{id}")]
@@ -40,11 +40,11 @@ public class ClientController : ControllerBase
     {
         var client = await _clientService.GetClientByIdAsync(_currentUserService.BusinessId, id);
         if (client == null) return NotFound();
-        return Ok(client);
+        return Ok(client.ToResponseDto());
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateClient([FromBody] CreateClientDto dto) 
+    public async Task<IActionResult> CreateClient([FromBody] CreateClientDto dto)
     {
         var client = new Client
         {
@@ -54,6 +54,7 @@ public class ClientController : ControllerBase
             PreferredName = dto.PreferredName,
             Email = dto.Email,
             Phone = dto.Phone ?? string.Empty,
+            DateOfBirth = dto.DateOfBirth ?? DateOnly.MinValue,
             Street = dto.Address?.Street,
             Suburb = dto.Address?.Suburb,
             State = dto.Address?.State,
@@ -64,25 +65,26 @@ public class ClientController : ControllerBase
         };
 
         var createdClient = await _clientService.CreateClientAsync(client);
-        return CreatedAtAction(nameof(GetClientById), new { id = createdClient.Id }, createdClient);
+        return CreatedAtAction(nameof(GetClientById), new { id = createdClient.Id }, createdClient.ToResponseDto());
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateClient(Guid id, [FromBody] UpdateClientDto dto) 
+    public async Task<IActionResult> UpdateClient(Guid id, [FromBody] UpdateClientDto dto)
     {
         var client = new Client
         {
             Id = id,
-            Title = string.Empty,
             FirstName = dto.FirstName,
             LastName = dto.LastName,
             PreferredName = dto.PreferredName,
             Email = dto.Email,
             Phone = dto.Phone ?? string.Empty,
+            DateOfBirth = dto.DateOfBirth ?? DateOnly.MinValue,
             Street = dto.Address?.Street,
             Suburb = dto.Address?.Suburb,
             State = dto.Address?.State,
             PostCode = dto.Address?.PostCode,
+            Status = dto.Status,
             BusinessId = _currentUserService.BusinessId,
             UpdatedAt = DateTime.UtcNow
         };
@@ -92,7 +94,7 @@ public class ClientController : ControllerBase
 
         // Return the updated client
         var updatedClient = await _clientService.GetClientByIdAsync(_currentUserService.BusinessId, id);
-        return Ok(updatedClient);
+        return Ok(updatedClient!.ToResponseDto());
     }
 
     [HttpDelete("{id}")]
@@ -101,5 +103,5 @@ public class ClientController : ControllerBase
         var deleted = await _clientService.DeleteClientAsync(_currentUserService.BusinessId, id);
         if (!deleted) return NotFound();
         return NoContent();
-    }    
+    }
 }

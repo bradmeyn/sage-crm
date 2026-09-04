@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
+using CrmApi.Models;
 
 namespace Api.DTOs.Client;
 
@@ -30,13 +31,12 @@ public class UpdateClientDto
     [StringLength(20, ErrorMessage = "Phone number cannot exceed 20 characters")]
     public string? Phone { get; set; }
 
+    [JsonPropertyName("dateOfBirth")]
+    public DateOnly? DateOfBirth { get; set; }
+
     [JsonPropertyName("address")]
     public AddressDto? Address { get; set; }
 
-    [JsonPropertyName("isActive")]
-    public bool IsActive { get; set; } = true;
-
-    [JsonPropertyName("businessId")]
-    [Required]
-    public Guid BusinessId { get; set; }
+    [JsonPropertyName("status")]
+    public ClientStatus Status { get; set; } = ClientStatus.Prospect;
 }
