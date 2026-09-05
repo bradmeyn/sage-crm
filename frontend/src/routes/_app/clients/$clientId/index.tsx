@@ -1,59 +1,35 @@
 import { createFileRoute, getRouteApi } from '@tanstack/react-router'
-import type { ReactNode } from 'react'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { StatTile } from '@/components/stat-tile'
 
 export const Route = createFileRoute('/_app/clients/$clientId/')({
   component: OverviewPage,
 })
 
 const routeApi = getRouteApi('/_app/clients/$clientId')
+const currency = new Intl.NumberFormat('en-AU', { style: 'currency', currency: 'AUD', maximumFractionDigits: 0 })
 
 function OverviewPage() {
   const client = routeApi.useLoaderData()
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2">
-      <Card>
-        <CardHeader>
-          <CardTitle className="heading-tertiary">Contact</CardTitle>
-        </CardHeader>
-        <CardContent className="grid gap-2 text-sm">
-          <Row label="Email" value={client.email} />
-          <Row label="Phone" value={client.phone} />
-          <Row
-            label="Status"
-            value={
-              <Badge variant="secondary" className="capitalize">
-                {client.status}
-              </Badge>
-            }
-          />
-        </CardContent>
-      </Card>
+    <div className="flex flex-col gap-6">
+      <div>
+        <h2 className="heading-tertiary">Overview</h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          {client.personalDetails.maritalStatus} · Born {client.personalDetails.dateOfBirth}
+        </p>
+      </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="heading-tertiary">At a glance</CardTitle>
-        </CardHeader>
-        <CardContent className="grid gap-2 text-sm">
-          <Row label="Date of birth" value={client.personalDetails.dateOfBirth} />
-          <Row label="Marital status" value={client.personalDetails.maritalStatus} />
-          <Row
-            label="Annual income"
-            value={`$${client.financialDetails.annualIncome.toLocaleString()}`}
-          />
-        </CardContent>
-      </Card>
-    </div>
-  )
-}
+      <div className="grid gap-4 sm:grid-cols-3">
+        <StatTile label="Annual income" value={currency.format(client.financialDetails.annualIncome)} />
+        <StatTile label="Net worth" value={currency.format(client.financialDetails.netWorth)} />
+        <StatTile label="Super balance" value={currency.format(client.financialDetails.superBalance)} />
+      </div>
 
-function Row({ label, value }: { label: string; value: ReactNode }) {
-  return (
-    <div className="flex items-center justify-between">
-      <span className="text-muted-foreground">{label}</span>
-      <span className="font-medium">{value}</span>
+      <div>
+        <h3 className="text-sm font-medium text-muted-foreground">Address</h3>
+        <p className="mt-1 text-sm">{client.personalDetails.address}</p>
+      </div>
     </div>
   )
 }

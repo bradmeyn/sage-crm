@@ -1,7 +1,6 @@
 import { createFileRoute, Outlet } from '@tanstack/react-router'
 import { AppSidebar } from '@/components/app-sidebar'
-import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
-import { Separator } from '@/components/ui/separator'
+import { AppTopbar } from '@/components/app-topbar'
 
 export const Route = createFileRoute('/_app')({
   component: AppLayout,
@@ -9,17 +8,18 @@ export const Route = createFileRoute('/_app')({
 
 function AppLayout() {
   return (
-    <SidebarProvider>
+    <div className="flex h-screen bg-primary">
       <AppSidebar />
-      <SidebarInset>
-        <header className="flex h-14 shrink-0 items-center gap-2 border-b px-4">
-          <SidebarTrigger />
-          <Separator orientation="vertical" className="h-4" />
-        </header>
-        <div className="flex-1 p-6">
-          <Outlet />
+      <div className="m-4 ml-0 flex flex-1 flex-col overflow-hidden rounded-xl bg-accent px-6 md:px-10">
+        {/* One container around the topbar and the page, so search/user line up
+            with the content instead of running to the full window width. */}
+        <div className="mx-auto flex w-full max-w-[100rem] flex-1 flex-col overflow-hidden">
+          <AppTopbar />
+          <main className="flex-1 overflow-auto pb-10">
+            <Outlet />
+          </main>
         </div>
-      </SidebarInset>
-    </SidebarProvider>
+      </div>
+    </div>
   )
 }
