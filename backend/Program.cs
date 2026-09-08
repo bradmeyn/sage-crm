@@ -40,6 +40,15 @@ builder.Services.AddScoped<IFileNoteService, FileNoteService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
+// Balance sheet / cashflow / planning — sub-resources scoped by clientId only.
+builder.Services.AddScoped<IAssetService, AssetService>();
+builder.Services.AddScoped<ILiabilityService, LiabilityService>();
+builder.Services.AddScoped<IIncomeService, IncomeService>();
+builder.Services.AddScoped<IExpenseService, ExpenseService>();
+builder.Services.AddScoped<IGoalService, GoalService>();
+builder.Services.AddScoped<IInsuranceService, InsuranceService>();
+builder.Services.AddScoped<CrmApi.Filters.ClientOwnershipFilter>();
+
 // Dev-only stand-ins so registration/email-confirmation and file upload work without
 // real SMTP/Azure credentials locally — see ConsoleEmailService/LocalFileStorageService.
 if (builder.Environment.IsDevelopment())
