@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Api.DTOs.Client;
-using CrmApi.Models;
 using CrmApi.Services;
 
 
@@ -13,7 +12,6 @@ public class ClientController : ControllerBase
 {
     private readonly IClientService _clientService;
     private readonly ILogger<ClientController> _logger;
-
     private readonly ICurrentUserService _currentUserService;
 
 
@@ -46,53 +44,16 @@ public class ClientController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateClient([FromBody] CreateClientDto dto)
     {
-        var client = new Client
-        {
-            Title = dto.Title,
-            FirstName = dto.FirstName,
-            LastName = dto.LastName,
-            PreferredName = dto.PreferredName,
-            Email = dto.Email,
-            Phone = dto.Phone ?? string.Empty,
-            DateOfBirth = dto.DateOfBirth ?? DateOnly.MinValue,
-            Street = dto.Address?.Street,
-            Suburb = dto.Address?.Suburb,
-            State = dto.Address?.State,
-            PostCode = dto.Address?.PostCode,
-            BusinessId = _currentUserService.BusinessId,
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow
-        };
-
-        var createdClient = await _clientService.CreateClientAsync(client);
+        var createdClient = await _clientService.CreateClientAsync(_currentUserService.BusinessId, dto);
         return CreatedAtAction(nameof(GetClientById), new { id = createdClient.Id }, createdClient.ToResponseDto());
     }
 
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateClient(Guid id, [FromBody] UpdateClientDto dto)
     {
-        var client = new Client
-        {
-            Id = id,
-            FirstName = dto.FirstName,
-            LastName = dto.LastName,
-            PreferredName = dto.PreferredName,
-            Email = dto.Email,
-            Phone = dto.Phone ?? string.Empty,
-            DateOfBirth = dto.DateOfBirth ?? DateOnly.MinValue,
-            Street = dto.Address?.Street,
-            Suburb = dto.Address?.Suburb,
-            State = dto.Address?.State,
-            PostCode = dto.Address?.PostCode,
-            Status = dto.Status,
-            BusinessId = _currentUserService.BusinessId,
-            UpdatedAt = DateTime.UtcNow
-        };
-
-        var updated = await _clientService.UpdateClientAsync(client);
+        var updated = await _clientService.UpdateClientAsync(_currentUserService.BusinessId, id, dto);
         if (!updated) return NotFound();
 
-        // Return the updated client
         var updatedClient = await _clientService.GetClientByIdAsync(_currentUserService.BusinessId, id);
         return Ok(updatedClient!.ToResponseDto());
     }
@@ -102,6 +63,24 @@ public class ClientController : ControllerBase
     {
         var deleted = await _clientService.DeleteClientAsync(_currentUserService.BusinessId, id);
         if (!deleted) return NotFound();
+        return NoContent();
+    }
+
+    [HttpPost("{id}/partner")]
+    public async Task<IActionResult> LinkPartner(Guid id, [FromBody] LinkPartnerDto dto)
+    {
+        var linked = await _clientService.LinkPartnerAsync(_currentUserService.BusinessId, id, dto.PartnerId, dto.Relationship);
+        if (!linked) return NotFound();
+
+        var client = await _clientService.GetClientByIdAsync(_currentUserService.BusinessId, id);
+        return Ok(client!.ToResponseDto());
+    }
+
+    [HttpDelete("{id}/partner")]
+    public async Task<IActionResult> UnlinkPartner(Guid id)
+    {
+        var unlinked = await _clientService.UnlinkPartnerAsync(_currentUserService.BusinessId, id);
+        if (!unlinked) return NotFound();
         return NoContent();
     }
 }
